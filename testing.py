@@ -62,7 +62,7 @@ MAP = (
     "#                    #"
     "#                    #"
     "#                    #"
-    "#                    #"
+    "#                    #" #"#          b         #" TO BE RIGHT INFORUNT OF THEM
     "#                    #"
     "#                    #"
     "#                    #"
@@ -149,7 +149,14 @@ def ray_casting():
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
             texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            """________________________________________________________________________________________________________________________________"""
+            #fix here
+            """
+                maybe use distance???
+                
+            """
             texture_counter_increaser = result[where_and_how_much + 1] / TILES_TO_SEE #TEXTURE_SIZE
+            """________________________________________________________________________________________________________________________________"""
             for number_of_symbol in range(result[where_and_how_much + 1]):
                 depth = temp_depth_list[temp_depth_range_counter]
                 if pixel_y_pozition == 0:
