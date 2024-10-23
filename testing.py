@@ -183,6 +183,17 @@ def ray_casting():
                 
                 Maybe use that  ( % because 18 % 16 = 2)
                 
+                maybe devide total of everything by textrue size one time then add each time and maybe u 
+                SO update after each # of compiler befor the y axis and add till you stretch out the 16 grid of it 
+                TEXTURE_SIZE = 16
+                CASTED_RAYS = TEXTURE_SIZE * 6
+                
+                
+                
+                
+                
+                and to see sides amybe update compiler to add a South West and so on based of if cos is negtive /postive and same as sin 
+                
                 """
                 texture_counter_increaser = 1
                 texture_counter += texture_counter_increaser  #(number_of_symbol / TEXTURE_SIZE)
