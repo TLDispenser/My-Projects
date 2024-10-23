@@ -13,7 +13,8 @@ TEXTURE_SIZE = 16
 TILE_SIZE = int((SCREEN_WIDTH / 2) / MAP_SIZE)
 FOV =  math.pi / 3
 HALF_FOV = FOV / 2
-CASTED_RAYS = TEXTURE_SIZE * 6
+TILES_TO_SEE = 6
+CASTED_RAYS = TEXTURE_SIZE * TILES_TO_SEE
 STEP_ANGLE = FOV / CASTED_RAYS
 MAX_DEPTH = int(MAP_SIZE * TILE_SIZE)
 SCALE = (SCREEN_WIDTH / 2) / CASTED_RAYS
@@ -142,12 +143,13 @@ def ray_casting():
     print(f"Casting summerised{result}")
     for pixel_y_pozition in range(TEXTURE_SIZE):
         #counter for walls
-        #texture_counter = 0 whent to where_and_how_much
-        texture_counter_increaser = 1
+        texture_counter = 0
+        #texture_counter_increaser = 0
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            texture_counter = result[where_and_how_much + 1] / TEXTURE_SIZE
+            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            texture_counter_increaser = result[where_and_how_much + 1] / TILES_TO_SEE #TEXTURE_SIZE
             for number_of_symbol in range(result[where_and_how_much + 1]):
                 depth = temp_depth_list[temp_depth_range_counter]
                 if pixel_y_pozition == 0:
@@ -173,15 +175,8 @@ def ray_casting():
                 pygame.draw.rect(win, (color1, color2, color3),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
                 # FIX HERE TO FIX WARPING OF WALLS UDWAUDHWAUDYHUI 
                 #texture_counter = int(number_of_symbol / TEXTURE_SIZE) #* TEXTURE_SIZE
-                # ALSO FIGURE OUT HOW TO DITECT 1/16 of a  wall and so on !!!!!!
                 #(number_of_symbol + number_of_symbol_prevous)
                 """RENEMBER EVERYTHING IS COLLOR NOT THE DRAWLING
-                
-                18 / 16 = 1.125
-                
-                16 * .125 = 2
-                
-                Maybe use that  ( % because 18 % 16 = 2)
                 
                 maybe devide total of everything by textrue size one time then add each time and maybe u 
                 SO update after each # of compiler befor the y axis and add till you stretch out the 16 grid of it 
@@ -193,10 +188,9 @@ def ray_casting():
                 
                 
                 and to see sides amybe update compiler to add a South West and so on based of if cos is negtive /postive and same as sin 
-                
+
                 """
-                texture_counter_increaser = 1
-                texture_counter += texture_counter_increaser  #(number_of_symbol / TEXTURE_SIZE)
+                texture_counter += round(texture_counter_increaser)  #(number_of_symbol / TEXTURE_SIZE)
                 if texture_counter  >= (TEXTURE_SIZE): 
                     texture_counter = 0
                 temp_depth_range_counter += 1
