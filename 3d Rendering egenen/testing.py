@@ -190,14 +190,16 @@ def ray_casting():
                 TEXTURE_SIZE = 16
                 CASTED_RAYS = TEXTURE_SIZE * 6
                 
-                
+                #still needs work but best as it can be I guess (looks low texture when far away
+                texture_counter += int((1 + depth * depth * 0.0001))
                 
                 
                 
                 and to see sides amybe update compiler to add a South West and so on based of if cos is negtive /postive and same as sin 
 
                 """
-                texture_counter += round(texture_counter_increaser)  #(number_of_symbol / TEXTURE_SIZE)
+                #still needs work but best as it can be I guess (looks low texture when far away
+                texture_counter += int((1 + depth * depth * 0.0001))  #(number_of_symbol / TEXTURE_SIZE)
                 if texture_counter  >= (TEXTURE_SIZE): 
                     texture_counter = 0
                 temp_depth_range_counter += 1
