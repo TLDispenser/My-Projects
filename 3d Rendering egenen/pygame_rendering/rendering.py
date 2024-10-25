@@ -4,7 +4,7 @@ import sys
 import math
 
 #my textures_and_mapps
-from pygame_rendering import textures_and_mapps
+import textures_and_mapps
 #import help
 
 #global constants
