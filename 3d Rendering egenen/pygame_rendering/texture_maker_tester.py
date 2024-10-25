@@ -81,6 +81,10 @@ TO DO:
     
     make wure it prints and requros where it placed and all the colors 
     
+
+
+CHECK OUT 
+https://github.com/x4nth055/pythoncode-tutorials
     
 """
 
