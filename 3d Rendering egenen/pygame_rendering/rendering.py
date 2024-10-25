@@ -2,6 +2,7 @@
 import pygame
 import sys
 import math
+
 #my textures_and_mapps
 from pygame_rendering import textures_and_mapps
 #import help
@@ -29,51 +30,12 @@ player_speed = ORIGANAL_PLAYER_SPEED
 player_x = (SCREEN_WIDTH / 2) / 2
 player_y = (SCREEN_WIDTH / 2) / 2
 player_angle = math.pi
+#texture 2
 
 #texture 1
-WALL1_TEXTURE = (
-    "0000000000000000"
-    "0111100001111110"
-    "0111111001111110"
-    "0111111101111110"
-    "0110000111111110"
-    "0111001111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0111111111111110"
-    "0000000000000000"
-    )
+WALL1_TEXTURE = textures_and_mapps.BASE_TEXTURE
 #map
-MAP = (
-    "######################"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#       b    b       #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "#                    #"
-    "######################"
-)
+MAP = textures_and_mapps.TESTING_MAP
 
 #init pygame
 pygame.init()
@@ -187,7 +149,6 @@ def ray_casting():
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
                 pygame.draw.rect(win, (color1, color2, color3),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
-                #still needs work but best as it can be I guess (looks low texture when far away
                 texture_counter += int((1 + depth * depth * 0.0001))
                 if texture_counter  >= (TEXTURE_SIZE): 
                     texture_counter = 0
