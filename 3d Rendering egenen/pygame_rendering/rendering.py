@@ -41,7 +41,7 @@ MAP = textures_and_mapps.TESTING_MAP
 pygame.init()
 
 #game window
-win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),pygame.RESIZABLE)
 pygame.display.set_caption('Ray-casting')
 
 #init timer
