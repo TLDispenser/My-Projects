@@ -6,7 +6,11 @@ import math
 #my textures_and_mapps
 import textures_and_mapps
 #import help
+#I dont know what this does
+#import ctypes
 
+# Increas Dots Per inch so it looks sharper
+#ctypes.windll.shcore.SetProcessDpiAwareness(True)
 #global constants
 SCREEN_HEIGHT = 480 
 SCREEN_WIDTH = SCREEN_HEIGHT * 2
