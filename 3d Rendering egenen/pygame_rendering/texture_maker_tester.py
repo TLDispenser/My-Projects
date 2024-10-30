@@ -127,6 +127,23 @@ def place_color_block(mouse_x, mouse_y):
 def save():
     pygame.image.save(screen, "canvas.png")
 
+#asks for 3 intijers for color
+def get_three_integers():
+    while True:
+        user_input = input("Please enter three integers separated by spaces for your color: ")
+        try:
+            # Split the input and convert to integers
+            integers = list(map(int, user_input.split()))
+            #checks to see if proper legnth and if not < 256
+            if len(integers) == 3 and integers[0] < 256 and integers[1] < 256 and integers[2] < 256:
+                return integers
+            else:
+                print("You must enter exactly three integers.")
+        except ValueError:
+            print("Invalid input. Please enter integers only.")
+
+
+
 #asks user if they want to edit a prevous immage
 user_immage_question = input("Enter a prevous list limage if you want. (put 0 if no)")
 if user_immage_question == "0":
@@ -136,30 +153,26 @@ else:
 #Prints how to do stuff
 print("Use esc to save (you can still edit after)")
 print("type c to change color")
-print("use [#, #, #] for color")
+print("click to place")
 # Game loop.
 while True:
     screen.fill((255, 255, 255))
+    #gets events to do stuff
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        #get user input
+        #places the block based on x y cords
         if event.type == pygame.MOUSEBUTTONDOWN:
             x , y = pygame.mouse.get_pos()
             place_color_block(x, y)
         if event.type == pygame.KEYDOWN:
             # Print the grid to save
             if event.key == pygame.K_ESCAPE:
-                for row in grid:
-                    print(row)
+                print(picture)
             #changes the color
             if event.key == pygame.K_c:
-                drawColor_temp = input("Color choose! [#, #, #] ")
-                #takes the list string and turns each in to ints
-                for numb_string in range(len(drawColor_temp)):
-                    drawColor_temp[numb_string] = int(drawColor_temp[numb_string])
-                drawColor = drawColor_temp
+                drawColor = get_three_integers()
             
             
     #updates the display based on list of list of list
