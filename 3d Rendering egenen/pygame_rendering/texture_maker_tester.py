@@ -81,39 +81,39 @@ TO DO:
     make wure it prints and requros where it placed and all the colors 
     
     
+    
 """
 
 # Imports
 import sys
 import pygame
-import ctypes
+#import ctypes
 
 # Increas Dots Per inch so it looks sharper
-ctypes.windll.shcore.SetProcessDpiAwareness(True)
+#ctypes.windll.shcore.SetProcessDpiAwareness(True)
+
+# Variables
+TEXTURE_SIZE = 16
+# Create a 16x16 list containing [0, 0, 0]
+picture = [[[255, 255, 255] for _ in range(TEXTURE_SIZE)] for _ in range(TEXTURE_SIZE)]
+# Initial color
+drawColor = [0, 0, 0]
 
 # Pygame Configuration
 pygame.init()
 fps = 30
 fpsClock = pygame.time.Clock()
-width_screen, height_screen = 640, 480
+width_screen, height_screen = TEXTURE_SIZE * TEXTURE_SIZE, TEXTURE_SIZE * TEXTURE_SIZE
 screen = pygame.display.set_mode((width_screen, height_screen), pygame.RESIZABLE)
 
 font = pygame.font.SysFont('Arial', 20)
 
 
-# Variables
-TEXTURE_SIZE = 16
-
-# Initial color
-drawColor = [0, 0, 0]
-
 #place the block on the grid and updates it
 def place_color_block(mouse_x, mouse_y):
     x = int(mouse_x / TEXTURE_SIZE)
     y = int(mouse_y / TEXTURE_SIZE)
-    
-    """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight))"""
-    pygame.draw.rect(screen , drawColor, (x, y, 20, 20))
+    picture[y][x] = drawColor
 # Changing the Color
 def changeColor(color):
     global drawColor
@@ -122,6 +122,7 @@ def changeColor(color):
 # Save the surface to the Disk
 def save():
     pygame.image.save(screen, "canvas.png")
+
 
 # Game loop.
 while True:
@@ -138,5 +139,11 @@ while True:
     for tex_y in range(TEXTURE_SIZE):
         for tex_x in range(TEXTURE_SIZE):
             cool = 0
+            """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight))"""
+            pygame.draw.rect(screen , picture[tex_y][tex_x], (tex_x * TEXTURE_SIZE, tex_y * TEXTURE_SIZE, width_screen / TEXTURE_SIZE, height_screen / TEXTURE_SIZE))
     pygame.display.flip()
     fpsClock.tick(fps)
+    
+# Print the grid to save
+for row in grid:
+    print(row)
