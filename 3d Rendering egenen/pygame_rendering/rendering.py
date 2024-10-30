@@ -1,3 +1,47 @@
+
+"""
+    To do:
+        fix the wall skipping when far away compared to up close
+        fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
+            ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+                How to fix:
+                    maybe look at players cos and sin and see whre it starts and then be able to do that
+                    
+        update compiler to say what way its looking:
+            How to do:
+                make the compiler in the render thing skip more and use sin and cos to determan angle of what side
+                it would look like
+                ################bbbbbb############
+                # 5 N # 12 E b 6 E # 12 E
+    
+    
+    
+    Future looking:
+        How to look up and down
+        Have a wepion
+        add more floors
+    
+    
+    EXTRA PROJECT:
+    
+    Texture and render a mug with depth and shading be able to move around and such 
+    
+    
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #packages
 import pygame
 import sys
@@ -40,6 +84,8 @@ player_angle = math.pi
 WALL1_TEXTURE = textures_and_mapps.BASE_TEXTURE
 #map
 MAP = textures_and_mapps.TESTING_MAP
+#MUSHROOM!
+MUSHROOMM = textures_and_mapps.MUSHROOM
 
 #init pygame
 pygame.init()
@@ -141,19 +187,23 @@ def ray_casting():
                 #fix stuck at the wall
                 if wall_height > SCREEN_HEIGHT:
                     wall_height = SCREEN_HEIGHT
-                    
+                #here is how to add what you want with colors
                 if result[where_and_how_much] == '#':
+                    color0 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
                     color1 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
                     color2 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
-                    color3 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
                 if result[where_and_how_much] == 'b':
-                    color1 = 255 / (1 + depth * depth * 0.0001)
+                    color0 = 255 / (1 + depth * depth * 0.0001)
+                    color1 = 0 / (1 + depth * depth * 0.0001)
                     color2 = 0 / (1 + depth * depth * 0.0001)
-                    color3 = 0 / (1 + depth * depth * 0.0001)
+                if result[where_and_how_much] == 'M':
+                    color0 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][0] / (1 + depth * depth * 0.0001)
+                    color1 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][1] / (1 + depth * depth * 0.0001)
+                    color2 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][2] / (1 + depth * depth * 0.0001)
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
-                pygame.draw.rect(win, (color1, color2, color3),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
-                texture_counter += int((1 + depth * depth * 0.0001))
+                pygame.draw.rect(win, (color0, color1, color2),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
+                texture_counter +=  int((1 + depth * depth * 0.0001)) #TEXTURE_SIZE / result[where_and_how_much + 1] #/ TEXTURE_SIZE int((1 + depth * depth * 0.0001))
                 if texture_counter  >= (TEXTURE_SIZE): 
                     texture_counter = 0
                 temp_depth_range_counter += 1
