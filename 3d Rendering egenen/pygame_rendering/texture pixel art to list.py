@@ -54,39 +54,15 @@
 """
 
 
-
-#WIRTE CODE TO MAKE AND CHECK TEXTURES ...YEA!
-
-#and state what thye are 
-
 """
 maybe make a tuple so less storage and oprating power
 
 TO DO:
-    make the thing like a 16 by 16 pixel art maker 
-    check what color is where
-    and update based on what I click and do 
-    
-    
-    so bottem might have a hex color picker 255 166 223 and i can place that and update based where they placed and then print in termanl once done!
-    
-    
-    ALSO BE ABLE TO IMPORT THE THING ABOVE AND SEE WHAT IT IS THEN FIX MISTAKES!!!
-    
-    
-    add so i can use input to change colors and see whats there in the bottem 
-    
-    makes lines around to see where placeing will be 
-    
-    make wure it prints and requros where it placed and all the colors 
-    
-    
-    
-    MAKE COLOR EAZER TO USE INSETEAD OF STRING
-    
-    MAYBE ADD A BOX TO MAKE TYPE COLOR
-    
-    MAYBE ALOW TO CHANGE GRID SIZE
+    need to make buttions for bush stuff
+        color picker from block
+        fill in (bucket)
+        others?
+    make everything on the screen not the concle!!!
     
     
     
@@ -102,6 +78,7 @@ import pygame
 
 # Variables
 TEXTURE_SIZE = 16
+dragging = False
 # Create a 16x16 list containing [0, 0, 0]
 picture = [[[255, 255, 255] for _ in range(TEXTURE_SIZE)] for _ in range(TEXTURE_SIZE)]
 # Initial color
@@ -109,7 +86,7 @@ drawColor = [0, 0, 0]
 
 # Pygame Configuration
 pygame.init()
-fps = 30
+fps = 300
 fpsClock = pygame.time.Clock()
 width_screen, height_screen = TEXTURE_SIZE * TEXTURE_SIZE, TEXTURE_SIZE * TEXTURE_SIZE
 screen = pygame.display.set_mode((width_screen, height_screen), pygame.RESIZABLE)
@@ -162,10 +139,12 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        #places the block based on x y cords
+        #checks if the mouse is pressed down
         if event.type == pygame.MOUSEBUTTONDOWN:
-            x , y = pygame.mouse.get_pos()
-            place_color_block(x, y)
+            dragging = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            dragging = False
+        
         if event.type == pygame.KEYDOWN:
             # Print the grid to save
             if event.key == pygame.K_ESCAPE:
@@ -173,8 +152,10 @@ while True:
             #changes the color
             if event.key == pygame.K_c:
                 drawColor = get_three_integers()
-            
-            
+    if dragging:
+        #places the block based on x y cords
+        x , y = pygame.mouse.get_pos()
+        place_color_block(x, y)
     #updates the display based on list of list of list
     for tex_y in range(TEXTURE_SIZE):
         for tex_x in range(TEXTURE_SIZE):
