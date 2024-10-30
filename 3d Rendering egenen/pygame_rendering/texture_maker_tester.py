@@ -129,7 +129,7 @@ def save():
 
 #asks user if they want to edit a prevous immage
 user_immage_question = input("Enter a prevous list limage if you want. (put 0 if no)")
-if user_immage_question == 0:
+if user_immage_question == "0":
     print("")
 else:
     picture = user_immage_question
@@ -154,8 +154,12 @@ while True:
                 for row in grid:
                     print(row)
             #changes the color
-            if event.key == pygame.K_C:
-                drawColor = input("Color choose! [#, #, #] ")
+            if event.key == pygame.K_c:
+                drawColor_temp = input("Color choose! [#, #, #] ")
+                #takes the list string and turns each in to ints
+                for numb_string in range(len(drawColor_temp)):
+                    drawColor_temp[numb_string] = int(drawColor_temp[numb_string])
+                drawColor = drawColor_temp
             
             
     #updates the display based on list of list of list
