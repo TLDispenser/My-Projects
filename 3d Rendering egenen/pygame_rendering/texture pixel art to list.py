@@ -68,6 +68,7 @@ TO DO:
 TO DO NEXT!!!:
     see what color you just picked 
     
+    FIX THE IMPORT COMAND
     
 """
 
@@ -101,7 +102,8 @@ font = pygame.font.SysFont('Arial', 20)
 def place_color_block(mouse_x, mouse_y):
     x = int(mouse_x / TEXTURE_SIZE)
     y = int(mouse_y / TEXTURE_SIZE)
-    picture[y][x] = drawColor
+    if 0 <= x < TEXTURE_SIZE and 0 <= y < TEXTURE_SIZE:
+        picture[y][x] = drawColor
 
 # Save the surface to the Disk
 def save():
