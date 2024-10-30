@@ -135,15 +135,15 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x , y = pygame.mouse.get_pos()
             place_color_block(x, y)
+        if event.type == pygame.KEYDOWN:
+            # Print the grid to save
+            if event.key == pygame.K_ESCAPE:
+                for row in grid:
+                    print(row)
+            
     #updates the display based on list of list of list
     for tex_y in range(TEXTURE_SIZE):
         for tex_x in range(TEXTURE_SIZE):
-            cool = 0
-            """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight))"""
             pygame.draw.rect(screen , picture[tex_y][tex_x], (tex_x * TEXTURE_SIZE, tex_y * TEXTURE_SIZE, width_screen / TEXTURE_SIZE, height_screen / TEXTURE_SIZE))
     pygame.display.flip()
     fpsClock.tick(fps)
-    
-# Print the grid to save
-for row in grid:
-    print(row)
