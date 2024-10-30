@@ -65,6 +65,9 @@ TO DO:
     make everything on the screen not the concle!!!
     
     
+TO DO NEXT!!!:
+    see what color you just picked 
+    
     
 """
 
