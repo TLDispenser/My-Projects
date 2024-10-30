@@ -82,6 +82,14 @@ TO DO:
     
     
     
+    MAKE COLOR EAZER TO USE INSETEAD OF STRING
+    
+    MAYBE ADD A BOX TO MAKE TYPE COLOR
+    
+    MAYBE ALOW TO CHANGE GRID SIZE
+    
+    
+    
 """
 
 # Imports
@@ -114,16 +122,21 @@ def place_color_block(mouse_x, mouse_y):
     x = int(mouse_x / TEXTURE_SIZE)
     y = int(mouse_y / TEXTURE_SIZE)
     picture[y][x] = drawColor
-# Changing the Color
-def changeColor(color):
-    global drawColor
-    drawColor = color
 
 # Save the surface to the Disk
 def save():
     pygame.image.save(screen, "canvas.png")
 
-
+#asks user if they want to edit a prevous immage
+user_immage_question = input("Enter a prevous list limage if you want. (put 0 if no)")
+if user_immage_question == 0:
+    print("")
+else:
+    picture = user_immage_question
+#Prints how to do stuff
+print("Use esc to save (you can still edit after)")
+print("type c to change color")
+print("use [#, #, #] for color")
 # Game loop.
 while True:
     screen.fill((255, 255, 255))
@@ -140,6 +153,10 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 for row in grid:
                     print(row)
+            #changes the color
+            if event.key == pygame.K_C:
+                drawColor = input("Color choose! [#, #, #] ")
+            
             
     #updates the display based on list of list of list
     for tex_y in range(TEXTURE_SIZE):
