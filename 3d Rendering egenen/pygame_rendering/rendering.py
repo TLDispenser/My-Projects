@@ -1,6 +1,7 @@
 
 """
     To do:
+    make the map only render the top left and the 3d full screen
         fix the wall skipping when far away compared to up close
         fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
             ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
@@ -152,6 +153,8 @@ def ray_casting():
     current_run_character = ""
     run_length = 0
     #gets all the things on screen list and reurns groups of whats there 
+    #such as (##########bbbbb#####) to [#, 10 b, 5, #, 10]
+    #also gets depth at each snd puts to a list
     for i in range(len(temp_what_is_it_list)):
         # If it's the start of the string, the current run starts with
         # the first character
@@ -206,16 +209,17 @@ def ray_casting():
                 texture_counter +=  int((1 + depth * depth * 0.0001)) #TEXTURE_SIZE / result[where_and_how_much + 1] #/ TEXTURE_SIZE int((1 + depth * depth * 0.0001))
                 if texture_counter  >= (TEXTURE_SIZE): 
                     texture_counter = 0
+                #counter +1 to add to get to next depth
                 temp_depth_range_counter += 1
-            if pixel_y_pozition == 0:
-                print()
             #int(texture_counter)      
+            #gets number of symbol from before and adds them to know what place it is at at the array counter 
             number_of_symbol_prevous +=  result[where_and_how_much + 1]
     pygame.display.flip()
 #movement direction
 forward = True
 #game loop
 while True:
+    #do tou want to quit with no error
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -248,18 +252,18 @@ while True:
     draw_map()
     ray_casting()
 
-    #get user input
+    #get user input for left rigt
     keys_turn = pygame.key.get_pressed()
 
-    #handle user input
+    #allows player to turn left or right
     if keys_turn[pygame.K_LEFT]:
         #working with radians, not degrees
         player_angle -= 0.1
     elif keys_turn[pygame.K_RIGHT]:
         player_angle += 0.1
-        
+    #gets user input to move forward or back
     keys_move = pygame.key.get_pressed()
-    
+    #allows player to move forward or back
     if keys_move[pygame.K_UP]:
         forward = True
         player_x += -1 * math.sin(player_angle) * 5
