@@ -1,0 +1,69 @@
+To do:
+      fix the wall skipping when far away compared to up close
+      fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
+          ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+              How to fix:
+                  maybe look at players cos and sin and see whre it starts and then be able to do that
+                  
+      update compiler to say what way its looking:
+          How to do:
+              make the compiler in the render thing skip more and use sin and cos to determan angle of what side
+              it would look like
+              ################bbbbbb############
+              # 5 N # 12 E b 6 E # 12 E
+  
+  
+  
+  Future looking:
+      How to look up and down
+      Have a wepion
+      add more floors
+  
+  
+  EXTRA PROJECT:
+  
+  Texture and render a mug with depth and shading be able to move around and such 
+
+
+
+
+
+
+Chat bot says:
+
+It looks like you've put together a solid framework here! I can help break down some steps for fixing the issues and future improvements. Here are some suggestions for each of the areas you’ve outlined.
+
+To-Do Fixes
+Wall Skipping with Distance:
+
+To address wall skipping at different distances, you might want to incorporate a formula that dynamically adjusts the raycasting interval based on distance. Consider using the player’s position and the angle of vision to create a more precise intersection with the wall grid, reducing gaps as the player moves further away.
+Adding a minor offset calculation when walls are detected at a distance can also smooth out this effect.
+Starting Texture Issue:
+
+Your idea to use the player’s cosine and sine values as reference points is on the right track. You could calculate an initial offset by checking the relative position of the player to the wall and adjusting the texture_counter accordingly. For instance, setting texture_counter as a function of the player’s angle to the wall might allow for more consistent alignment when textures wrap.
+Compiler Direction Labeling:
+
+For labeling the direction based on angles, calculate the angle and then determine the cardinal direction by dividing the angle range (e.g., 0–360 degrees) into quadrants (N, E, S, W). Once the quadrant is calculated, skip rows or columns as needed to simulate the orientation effect on the wall view.
+Future Features
+Vertical Look:
+
+For looking up and down, you can manipulate the field of view (FOV) and adjust the projection of walls based on a vertical angle. It will likely involve adjusting the y-axis scaling and possibly extending the raycasting to account for multiple layers.
+Weapon Implementation:
+
+You can add a sprite-based weapon in the lower part of the screen that doesn’t interact with the raycasting. For animations, cycle through frames of the weapon sprite upon player actions (like firing or switching).
+Additional Floors:
+
+Adding more floors will involve extending the map format to handle levels, like a 3D array (MAP[level][y][x]). You’ll need to implement collision and transition logic for moving between floors, and possibly add vertical raycasting to detect floors and ceilings.
+Extra Project (Mug Rendering)
+To render and move around a 3D mug:
+
+Basic Shape and Shading:
+
+Model the mug’s basic shape using a collection of pixels or vertices arranged in a circular pattern, with different shades based on the angle to the light source.
+Depth and Rotation:
+
+Use matrices to perform depth-based transformations, allowing the mug to rotate on different axes. A basic transformation matrix can handle the depth calculations for the shading effect.
+Interactivity:
+
+Add controls for rotating around the mug using trigonometric functions to simulate real-time perspective adjustments.
+Let me know if you want to go deeper into any specific implementation or if there’s another area where you'd like help!
