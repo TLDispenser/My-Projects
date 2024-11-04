@@ -136,7 +136,9 @@ def ray_casting():
             texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
-            texture_counter_increaser = 1 / int((1 + depth * depth * 0.0001))
+            texture_counter_increaser = int(1 / int((1 + depth * depth * 0.0001)))
+            if texture_counter_increaser < 1:
+                texture_counter_increaser = 1
             for number_of_symbol in range(result[where_and_how_much + 1]):
                 depth = temp_depth_list[temp_depth_range_counter]
                 #calculate wall_height
