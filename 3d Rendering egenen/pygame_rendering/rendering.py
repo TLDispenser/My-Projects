@@ -1,3 +1,32 @@
+"""
+    To do:
+        fix the wall skipping when far away compared to up close
+        fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
+            ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+                How to fix:
+                    maybe look at players cos and sin and see whre it starts and then be able to do that
+                    
+        update compiler to say what way its looking:
+            How to do:
+                make the compiler in the render thing skip more and use sin and cos to determan angle of what side
+                it would look like
+                ################bbbbbb############
+                # 5 N # 12 E b 6 E # 12 E
+    
+    
+    
+    Future looking:
+        How to look up and down
+        Have a wepion
+        add more floors
+    
+    
+    EXTRA PROJECT:
+    
+    Texture and render a mug with depth and shading be able to move around and such 
+    
+    
+"""
 #packages
 import pygame
 import sys
