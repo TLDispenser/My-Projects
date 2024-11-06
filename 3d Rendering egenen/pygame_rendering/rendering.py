@@ -159,10 +159,13 @@ def ray_casting(printt):
                     color1 = 0 / (1 + depth * depth * 0.0001)
                     color2 = 0 / (1 + depth * depth * 0.0001)
                 if result[where_and_how_much] == 'M':
+                    maths = (texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
+                    #(texture_counter / TILES_TO_SEE) * TEXTURE_SIZE
+                    #(TILES_TO_SEE / texture_counter)
                      #ONLY WANT TO SHOW 1 so maybe devide or multply by TILES_TO_SEE BUT it figure out to to keep in array
-                    color0 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][0] / (1 + depth * depth * 0.0001)
-                    color1 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][1] / (1 + depth * depth * 0.0001)
-                    color2 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][2] / (1 + depth * depth * 0.0001)
+                    color0 = MUSHROOMM[pixel_y_pozition][maths][0] / (1 + depth * depth * 0.0001)
+                    color1 = MUSHROOMM[pixel_y_pozition][maths][1] / (1 + depth * depth * 0.0001)
+                    color2 = MUSHROOMM[pixel_y_pozition][maths][2] / (1 + depth * depth * 0.0001)
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
                 if printt and pixel_y_pozition == 0:
