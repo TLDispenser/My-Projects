@@ -1,4 +1,8 @@
 To do:
+
+      Also make it only do tuples I dont need to change graphics at all
+
+
       fix the wall skipping when far away compared to up close
       fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
           ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
