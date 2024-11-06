@@ -3,7 +3,7 @@ import pygame
 import sys
 import math
 
-#my textures_and_mapps
+import textures_and_mapps
 
 #import help
 #I dont know what this does
@@ -37,11 +37,11 @@ player_angle = math.pi
 #texture 2
 
 #texture 1
-WALL1_TEXTURE = BASE_TEXTURE
+WALL1_TEXTURE = textures_and_mapps.BASE_TEXTURE
 #map
-MAP = TESTING_MAP
+MAP = textures_and_mapps.TESTING_MAP
 #MUSHROOM!
-MUSHROOMM = MUSHROOM
+MUSHROOMM = textures_and_mapps.MUSHROOM
 
 #init pygame
 pygame.init()
