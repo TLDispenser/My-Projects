@@ -70,7 +70,7 @@ def draw_map():
     pygame.draw.circle(win, (162, 0, 255), (int(player_x), int(player_y)), 12)
 
 #ray-casting algorithm
-def ray_casting():
+def ray_casting(printt):
     #left angle of FOV
     start_angle = player_angle - HALF_FOV
     #lists
@@ -165,6 +165,8 @@ def ray_casting():
                     color2 = MUSHROOMM[pixel_y_pozition][int(texture_counter)][2] / (1 + depth * depth * 0.0001)
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
+                if printt and pixel_y_pozition == 0:
+                    print(f"{result[where_and_how_much]}, Line: {pixel_y_pozition}, {number_of_symbol} / {result[where_and_how_much + 1]} of {result[where_and_how_much + 1]}, {number_of_symbol + number_of_symbol_prevous + 1} / {CASTED_RAYS} rays, {temp_depth_range_counter + 1} / {len(temp_depth_list)} depths = depth of {depth}, (Increasing by {texture_counter_increaser}) {texture_counter} / {TEXTURE_SIZE} int(pixel#on texture), texture counter on: cololm: {texture_counter} row: {pixel_y_pozition} ({int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)} / {TEXTURE_SIZE * TEXTURE_SIZE}) wich is a {WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]}")
                 pygame.draw.rect(win, (color0, color1, color2),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
                 # Increment `texture_counter` and wrap around if it exceeds `TEXTURE_SIZE`
                 texture_counter += texture_counter_increaser
@@ -208,7 +210,7 @@ while True:
     pygame.draw.rect(win, (200, 200, 200), (480, -SCREEN_HEIGHT / 2, SCREEN_HEIGHT, SCREEN_HEIGHT))
 
     draw_map()
-    ray_casting()
+    ray_casting(False)
 
     #get user input
     keys_turn = pygame.key.get_pressed()
@@ -230,8 +232,11 @@ while True:
         forward = False
         player_x -= -1 * math.sin(player_angle) * 5
         player_y -= math.cos(player_angle) * 5
-
-    
+        
+    keys_print = pygame.key.get_pressed()
+    #prints out screenshot of everything
+    if keys_print[pygame.K_SPACE]:
+        ray_casting(True)
     #set FPS
     clock.tick(30)
 
