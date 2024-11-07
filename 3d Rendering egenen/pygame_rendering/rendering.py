@@ -136,49 +136,43 @@ def ray_casting(printt):
         texture_counter = 0
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
+        texture_counter_increaser = len(visible_tiles) / TILES_TO_SEE
         for where_and_how_much in range(0, len(result), 2):
-            #texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
-            #use 1 devoided my somthing like depth to not increase when geting closer
-            #check to see how many tiles im seeing!!!!!!!
-            texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
             for number_of_symbol in range(result[where_and_how_much + 1]):
                 depth = temp_depth_list[temp_depth_range_counter]
                 #calculate wall_height
                 wall_height = (TILE_SIZE * SCREEN_HEIGHT) / (depth + 0.1)
                 # Fix wall height if too large or small
-                
                 if wall_height > SCREEN_HEIGHT:
                     wall_height = SCREEN_HEIGHT
                 elif wall_height < TILE_SIZE:
                     wall_height = TILE_SIZE
+                #shading devider 
+                shade_dev = (1 + depth * depth * 0.0001)
                 #here is how to add what you want with colors
                 if result[where_and_how_much] == '#' or result[where_and_how_much] == '$':
-                    color0 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
-                    color1 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
-                    color2 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
+                    color0 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / shade_dev
+                    color1 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / shade_dev
+                    color2 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / shade_dev
                 if result[where_and_how_much] == 'b':
-                    color0 = 255 / (1 + depth * depth * 0.0001)
-                    color1 = 0 / (1 + depth * depth * 0.0001)
-                    color2 = 0 / (1 + depth * depth * 0.0001)
+                    color0 = 255 / shade_dev
+                    color1 = 0 / shade_dev
+                    color2 = 0 / shade_dev
                 if result[where_and_how_much] == 'M':
-                    texture_position = int(texture_counter) #(texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
-                    #(texture_counter / TILES_TO_SEE) * TEXTURE_SIZE
-                    #(TILES_TO_SEE / texture_counter)
-                     #ONLY WANT TO SHOW 1 so maybe devide or multply by TILES_TO_SEE BUT it figure out to to keep in array
-                    color0 = MUSHROOMM[pixel_y_pozition][texture_position][0] / (1 + depth * depth * 0.0001)
-                    color1 = MUSHROOMM[pixel_y_pozition][texture_position][1] / (1 + depth * depth * 0.0001)
-                    color2 = MUSHROOMM[pixel_y_pozition][texture_position][2] / (1 + depth * depth * 0.0001)
+                    #fix here 
+                    texture_position = int(texture_counter) #int((temp_depth_range_counter % TEXTURE_SIZE) * (result[where_and_how_much + 1] / TEXTURE_SIZE))
+                    color0 = MUSHROOMM[pixel_y_pozition][texture_position][0] / shade_dev
+                    color1 = MUSHROOMM[pixel_y_pozition][texture_position][1] / shade_dev
+                    color2 = MUSHROOMM[pixel_y_pozition][texture_position][2] / shade_dev
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
                 if printt and pixel_y_pozition == 0:
                     print(f"{result[where_and_how_much]}, Line: {pixel_y_pozition}, {number_of_symbol} / {result[where_and_how_much + 1]} of {result[where_and_how_much + 1]}, {number_of_symbol + number_of_symbol_prevous + 1} / {CASTED_RAYS} rays, {temp_depth_range_counter + 1} / {len(temp_depth_list)} depths = depth of {depth}, (Increasing by {texture_counter_increaser}) {texture_counter} / {TEXTURE_SIZE} int(pixel#on texture), texture counter on: cololm: {texture_counter} row: {pixel_y_pozition} ({int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)} / {TEXTURE_SIZE * TEXTURE_SIZE}) wich is a {WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]}")
                 pygame.draw.rect(win, (color0, color1, color2),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
-                # Increment `texture_counter` and wrap around if it exceeds `TEXTURE_SIZE`
                 texture_counter += texture_counter_increaser 
                 if texture_counter >= TEXTURE_SIZE:
                     texture_counter = 0  # Wrap counter within texture array bounds
                 temp_depth_range_counter += 1
-            #int(texture_counter)      
             number_of_symbol_prevous +=  result[where_and_how_much + 1]
     pygame.display.flip()
 #movement direction
