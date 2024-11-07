@@ -71,6 +71,7 @@ def draw_map():
 
 #ray-casting algorithm
 def ray_casting(printt):
+    visible_tiles = set()
     #left angle of FOV
     start_angle = player_angle - HALF_FOV
     #lists
@@ -90,7 +91,7 @@ def ray_casting(printt):
             square = row * MAP_SIZE + col
             if MAP[square] != ' ':
                 pygame.draw.rect(win, (195, 137, 38), (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1))
-                    
+                
                 #draw casted ray
                 pygame.draw.line(win, (233, 166, 49), (player_x, player_y), (target_x, target_y))
                 
@@ -99,7 +100,10 @@ def ray_casting(printt):
                 #fix fish eye effect
                 depth *= math.cos(player_angle - start_angle) 
                 
-                temp_depth_list.append(depth)   
+                temp_depth_list.append(depth) 
+                
+                #sees how may tiles there are
+                visible_tiles.add((col, row))
                 break
         #increment angle by step
         start_angle += STEP_ANGLE
@@ -133,12 +137,10 @@ def ray_casting(printt):
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            #texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
-            texture_counter_increaser = int(1 / int((1 + depth * depth * 0.0001)))
-            if texture_counter_increaser < 1:
-                texture_counter_increaser = 1
+            texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
             for number_of_symbol in range(result[where_and_how_much + 1]):
                 depth = temp_depth_list[temp_depth_range_counter]
                 #calculate wall_height
@@ -159,7 +161,7 @@ def ray_casting(printt):
                     color1 = 0 / (1 + depth * depth * 0.0001)
                     color2 = 0 / (1 + depth * depth * 0.0001)
                 if result[where_and_how_much] == 'M':
-                    texture_position = (texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
+                    texture_position = int(texture_counter) #(texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
                     #(texture_counter / TILES_TO_SEE) * TEXTURE_SIZE
                     #(TILES_TO_SEE / texture_counter)
                      #ONLY WANT TO SHOW 1 so maybe devide or multply by TILES_TO_SEE BUT it figure out to to keep in array
@@ -172,7 +174,7 @@ def ray_casting(printt):
                     print(f"{result[where_and_how_much]}, Line: {pixel_y_pozition}, {number_of_symbol} / {result[where_and_how_much + 1]} of {result[where_and_how_much + 1]}, {number_of_symbol + number_of_symbol_prevous + 1} / {CASTED_RAYS} rays, {temp_depth_range_counter + 1} / {len(temp_depth_list)} depths = depth of {depth}, (Increasing by {texture_counter_increaser}) {texture_counter} / {TEXTURE_SIZE} int(pixel#on texture), texture counter on: cololm: {texture_counter} row: {pixel_y_pozition} ({int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)} / {TEXTURE_SIZE * TEXTURE_SIZE}) wich is a {WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]}")
                 pygame.draw.rect(win, (color0, color1, color2),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
                 # Increment `texture_counter` and wrap around if it exceeds `TEXTURE_SIZE`
-                texture_counter += texture_counter_increaser
+                texture_counter += texture_counter_increaser 
                 if texture_counter >= TEXTURE_SIZE:
                     texture_counter = 0  # Wrap counter within texture array bounds
                 temp_depth_range_counter += 1
