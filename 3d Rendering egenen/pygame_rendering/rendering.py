@@ -34,6 +34,9 @@ player_speed = ORIGANAL_PLAYER_SPEED
 player_x = (SCREEN_WIDTH / 2) / 2
 player_y = (SCREEN_WIDTH / 2) / 2
 player_angle = math.pi
+#just math quick
+PIE = math.pi
+PIEPIE = math.pi *2
 #texture 2
 
 #texture 1
@@ -104,15 +107,19 @@ def ray_casting(printt):
                 #sees how may tiles there are
                 visible_tiles.add((col, row))
                 
-                #adds where what direction you see the side at
-                if 0 <= start_angle <= 45 or 315 < start_angle <= 360:
-                    side_its_on = "E"
-                elif 45 < start_angle <= 135:
-                    side_its_on = "N"
-                elif 135 < start_angle <= 225:
-                    side_its_on = "W"
-                elif 225 < start_angle <= 315:
+                #adds where what direction you see the side at ( also im lazy so i converted to readians)
+                temp_start_angle = (start_angle % (PIEPIE))
+                if math.radians(0) <= temp_start_angle <= math.radians(45) or math.radians(315) < temp_start_angle <= math.radians(360):
                     side_its_on = "S"
+                elif math.radians(45) < temp_start_angle <= math.radians(135):
+                    side_its_on = "W"
+                elif math.radians(135) < temp_start_angle <= math.radians(225):
+                    side_its_on = "N"
+                elif math.radians(225) < temp_start_angle <= math.radians(315):
+                    side_its_on = "E"
+                else:
+                    side_its_on = "?"
+                    print(temp_start_angle)
                 #what is symbol is there and record it AND what side its on as a string
                 temp_what_is_it_list.append(str(MAP[square]) + str(side_its_on))
                 break
@@ -148,7 +155,7 @@ def ray_casting(printt):
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            #texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
             texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
@@ -182,7 +189,7 @@ def ray_casting(printt):
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
                 if printt and pixel_y_pozition == 0:
-                    print(f"{result[where_and_how_much]}, Line: {pixel_y_pozition}, {number_of_symbol} / {result[where_and_how_much + 1]} of {result[where_and_how_much + 1]}, {number_of_symbol + number_of_symbol_prevous + 1} / {CASTED_RAYS} rays, {temp_depth_range_counter + 1} / {len(temp_depth_list)} depths = depth of {depth}, (Increasing by {texture_counter_increaser}) {texture_counter} / {TEXTURE_SIZE} int(pixel#on texture), texture counter on: cololm: {texture_counter} row: {pixel_y_pozition} ({int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)} / {TEXTURE_SIZE * TEXTURE_SIZE}) wich is a {WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]}, length is {len(visible_tiles)}")
+                    print(f"{result[where_and_how_much]}, Line: {pixel_y_pozition}, {number_of_symbol} / {result[where_and_how_much + 1]} of {result[where_and_how_much + 1]}, {number_of_symbol + number_of_symbol_prevous + 1} / {CASTED_RAYS} rays, {temp_depth_range_counter + 1} / {len(temp_depth_list)} depths = depth of {depth}, (Increasing by {texture_counter_increaser}) {texture_counter} / {TEXTURE_SIZE} int(pixel#on texture), texture counter on: cololm: {texture_counter} row: {pixel_y_pozition} ({int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)} / {TEXTURE_SIZE * TEXTURE_SIZE}) wich is a {WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]}, length is {len(visible_tiles)}, angle im at {player_angle} direction facing {result[where_and_how_much][0]}")
                 pygame.draw.rect(win, (color0, color1, color2),  (SCREEN_WIDTH  / 2 + ((number_of_symbol + number_of_symbol_prevous) * SCALE),  ((SCREEN_HEIGHT / 2) - (wall_height / 2)) + (((wall_height / TEXTURE_SIZE) * (pixel_y_pozition))) , SCALE, wall_height /  (TEXTURE_SIZE / 2)))
                 # Increment `texture_counter` and wrap around if it exceeds `TEXTURE_SIZE`
                 texture_counter += texture_counter_increaser 
