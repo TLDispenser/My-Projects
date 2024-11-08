@@ -90,12 +90,11 @@ def ray_casting(printt):
             #calculate map square index
             square = row * MAP_SIZE + col
             if MAP[square] != ' ':
+                #colors the map tiles to show what you are looking at
                 pygame.draw.rect(win, (195, 137, 38), (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1))
                 
                 #draw casted ray
                 pygame.draw.line(win, (233, 166, 49), (player_x, player_y), (target_x, target_y))
-                
-                temp_what_is_it_list.append(MAP[square])
                 
                 #fix fish eye effect
                 depth *= math.cos(player_angle - start_angle) 
@@ -104,6 +103,18 @@ def ray_casting(printt):
                 
                 #sees how may tiles there are
                 visible_tiles.add((col, row))
+                
+                #adds where what direction you see the side at
+                if 0 <= start_angle <= 45 or 315 < start_angle <= 360:
+                    side_its_on = "E"
+                elif 45 < start_angle <= 135:
+                    side_its_on = "N"
+                elif 135 < start_angle <= 225:
+                    side_its_on = "W"
+                elif 225 < start_angle <= 315:
+                    side_its_on = "S"
+                #what is symbol is there and record it AND what side its on as a string
+                temp_what_is_it_list.append(str(MAP[square]) + str(side_its_on))
                 break
         #increment angle by step
         start_angle += STEP_ANGLE
@@ -137,7 +148,7 @@ def ray_casting(printt):
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            #texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
             texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
@@ -152,15 +163,15 @@ def ray_casting(printt):
                 elif wall_height < TILE_SIZE:
                     wall_height = TILE_SIZE
                 #here is how to add what you want with colors
-                if result[where_and_how_much] == '#' or result[where_and_how_much] == '$':
+                if result[where_and_how_much][0] == '#':
                     color0 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
                     color1 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
                     color2 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
-                if result[where_and_how_much] == 'b':
+                if result[where_and_how_much][0] == 'b':
                     color0 = 255 / (1 + depth * depth * 0.0001)
                     color1 = 0 / (1 + depth * depth * 0.0001)
                     color2 = 0 / (1 + depth * depth * 0.0001)
-                if result[where_and_how_much] == 'M':
+                if result[where_and_how_much][0] == 'M':
                     texture_position = int(texture_counter) #(texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
                     #(texture_counter / TILES_TO_SEE) * TEXTURE_SIZE
                     #(TILES_TO_SEE / texture_counter)
