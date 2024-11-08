@@ -109,6 +109,8 @@ def ray_casting(printt):
                 
                 #adds where what direction you see the side at ( also im lazy so i converted to readians)
                 temp_start_angle = (start_angle % (PIEPIE))
+                
+                #FIX THIS OF DITECTION WITH RADIANS INSTEAD AND MAKE SURE NORTH IS NORTH
                 if math.radians(0) <= temp_start_angle <= math.radians(45) or math.radians(315) < temp_start_angle <= math.radians(360):
                     side_its_on = "S"
                 elif math.radians(45) < temp_start_angle <= math.radians(135):
