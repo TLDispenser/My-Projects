@@ -1,28 +1,23 @@
 To do:
 
-      Also make it only do tuples I dont need to change graphics at all
-
-
-      fix the wall skipping when far away compared to up close
+ 
       fix the starting texture # because when I start on a wall and have same type it looks the same even when turning and does is not able to move propley:
           ln 161:  texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
               How to fix:
                   maybe look at players cos and sin and see whre it starts and then be able to do that
                   
-      update compiler to say what way its looking:
-          How to do:
-              make the compiler in the render thing skip more and use sin and cos to determan angle of what side
-              it would look like
-              ################bbbbbb############
-              # 5 N # 12 E b 6 E # 12 E
-  
-  
+      update compiler to say pass throught dots:
+            so i would do a tupple in there (100, 150)
+      update grabber to say pass throught dots:
+            so need to make a tuple in the depth
+            and amke a tuple in drawling so it would be (ZN, #N)
+      update texture thing so that " " is see through
   
   Future looking:
       How to look up and down
       Have a wepion
       add more floors
-  
+      draw floors and celings
   
   EXTRA PROJECT:
   
