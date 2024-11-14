@@ -111,17 +111,17 @@ def ray_casting(printt):
                 temp_start_angle = (start_angle % (PIEPIE))
                 
                 #FIX THIS OF DITECTION WITH RADIANS INSTEAD AND MAKE SURE NORTH IS NORTH
-                if math.radians(0) <= temp_start_angle <= math.radians(45) or math.radians(315) < temp_start_angle <= math.radians(360):
+                if 0 <= temp_start_angle < math.pi / 4 or 7 * math.pi / 4 <= temp_start_angle < 2 * math.pi:
                     side_its_on = "S"
-                elif math.radians(45) < temp_start_angle <= math.radians(135):
+                elif math.pi / 4 <= temp_start_angle < 3 * math.pi / 4:
                     side_its_on = "W"
-                elif math.radians(135) < temp_start_angle <= math.radians(225):
+                elif 3 * math.pi / 4 <= temp_start_angle < 5 * math.pi / 4:
                     side_its_on = "N"
-                elif math.radians(225) < temp_start_angle <= math.radians(315):
+                elif 5 * math.pi / 4 <= temp_start_angle < 7 * math.pi / 4:
                     side_its_on = "E"
                 else:
                     side_its_on = "?"
-                    print(temp_start_angle)
+                    print("somthing whent wrong")
                 #what is symbol is there and record it AND what side its on as a string
                 temp_what_is_it_list.append(str(MAP[square]) + str(side_its_on))
                 break
