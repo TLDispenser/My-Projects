@@ -157,7 +157,7 @@ def ray_casting(printt):
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            #texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
+            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
             texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
