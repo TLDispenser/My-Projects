@@ -157,7 +157,6 @@ def ray_casting(printt):
         number_of_symbol_prevous = 0
         temp_depth_range_counter = 0
         for where_and_how_much in range(0, len(result), 2):
-            texture_counter = result[where_and_how_much + 1] % TEXTURE_SIZE
             #use 1 devoided my somthing like depth to not increase when geting closer
             #check to see how many tiles im seeing!!!!!!!
             texture_counter_increaser = len(visible_tiles) / TEXTURE_SIZE
@@ -171,6 +170,8 @@ def ray_casting(printt):
                     wall_height = SCREEN_HEIGHT
                 elif wall_height < TILE_SIZE:
                     wall_height = TILE_SIZE
+                # Calculate the texture coordinate
+                texture_x = int(texture_counter) % TEXTURE_SIZE
                 #here is how to add what you want with colors
                 if result[where_and_how_much][0] == '#':
                     color0 = (int(WALL1_TEXTURE[int(texture_counter) + (pixel_y_pozition * TEXTURE_SIZE)]) * 255) / (1 + depth * depth * 0.0001)
@@ -181,13 +182,13 @@ def ray_casting(printt):
                     color1 = 0 / (1 + depth * depth * 0.0001)
                     color2 = 0 / (1 + depth * depth * 0.0001)
                 if result[where_and_how_much][0] == 'M':
-                    texture_position = int(texture_counter) #(texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
+                    texture_x_pozition = int(texture_counter) #(texture_counter // TILES_TO_SEE) * (TEXTURE_SIZE // (TEXTURE_SIZE // TILES_TO_SEE))
                     #(texture_counter / TILES_TO_SEE) * TEXTURE_SIZE
                     #(TILES_TO_SEE / texture_counter)
                      #ONLY WANT TO SHOW 1 so maybe devide or multply by TILES_TO_SEE BUT it figure out to to keep in array
-                    color0 = MUSHROOMM[pixel_y_pozition][texture_position][0] / (1 + depth * depth * 0.0001)
-                    color1 = MUSHROOMM[pixel_y_pozition][texture_position][1] / (1 + depth * depth * 0.0001)
-                    color2 = MUSHROOMM[pixel_y_pozition][texture_position][2] / (1 + depth * depth * 0.0001)
+                    color0 = MUSHROOMM[pixel_y_pozition][texture_x_pozition][0] / (1 + depth * depth * 0.0001)
+                    color1 = MUSHROOMM[pixel_y_pozition][texture_x_pozition][1] / (1 + depth * depth * 0.0001)
+                    color2 = MUSHROOMM[pixel_y_pozition][texture_x_pozition][2] / (1 + depth * depth * 0.0001)
                 #draw 3D projection
                 """pygame.draw.rect(what screen? , color (hex), (x, y, width, hight)"""
                 if printt and pixel_y_pozition == 0:
