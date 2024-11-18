@@ -1,1 +1,80 @@
+#Milo Troup P:6
+allowed_opp = ["+", "-", "*", "/", "**", "//", "%", "sqrt"]
+allowed_costants = ["PI", "e"]
+
+class Step_Caculator:
+    def __init__(self):
+        self.result = 0
+
+    def add(self, num):
+        self.result += num
+
+    def subtract(self, num):
+        self.result -= num
+
+    def multiply(self, num):
+        self.result *= num
+
+    def divide(self, num):
+        self.result /= num
+
+    def power(self, num):
+        self.result **= num
+    
+    def root(self, num):
+        self.result **= (1/num)
+    
+    def floor_divide(self, num):
+        self.result //= num
+        
+    def modulo(self, num):
+        self.result %= num  
+    
+    def get_result(self):
+        return self.result
+    
+    def reset(self):
+        self.result = 0
+        
+    def set_result(self, num):
+        self.result = num
+        
+        
+
+class Group_Caculator:
+    def __init__(self):
+        self.result = 0
+    
+
+def mainLoop_Step_Caculator():
+    print("Welcome to the step calculator")
+    if input("Do you need help? (y/n) ") == "y":
+        print("You can only use the following opperations: {allowed_opp}")
+        print("You can only use the following constants: {allowed_costants}")
+    while True:
+        break
+    
+    
+def mainLoop_Group_Caculator():
+    print("Welcome to the group calculator")
+    while True:
+        print(f"You can only use the following opperations: {allowed_opp}")
+    
+    
+
+while True:
+    if input("Do you want to switch opperations? (y/n) ") == "y":
+        if input("Do you want to switch to the group calculator? (y/n) ") == "y":
+            mainLoop_Group_Caculator()
+        if input("Do you want to switch to the step calculator? (y/n) ") == "y":
+            mainLoop_Step_Caculator()
+    if input("Do you want to exit the calculator? (y/n) ") == "y":
+        break
+    
+    
+print("Welcome to the calculator")
+if input("Do you want to use the group calculator or step calculator? (g/s) ") == "g":
+    mainLoop_Group_Caculator()
+else:
+    mainLoop_Step_Caculator()
 
