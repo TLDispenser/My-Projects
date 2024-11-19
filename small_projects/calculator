@@ -6,7 +6,9 @@ allowed_costants = [("result", 0), ("PI", math.pi), ("e", math.e)]
 class Step_Caculator:
     def __init__(self):
         self.result = allowed_costants[0][2]
-    
+        num1 = 0
+        num2 = 0
+
     def two_numbs_ask(self):
         while True:
             num1 = input("Put the first number: ")
@@ -35,29 +37,29 @@ class Step_Caculator:
 
             return num1, num2
 
-    def add(self, num):
-        self.result += num
-
-    def subtract(self, num):
-        self.result -= num
-
-    def multiply(self, num):
-        self.result *= num
-
-    def divide(self, num):
-        self.result /= num
-
-    def power(self, num):
-        self.result **= num
-    
-    def root(self, num):
-        self.result **= (1/num)
-    
-    def floor_divide(self, num):
-        self.result //= num
+    def add(self, num1, num2):
+        self.result = num1 + num2
         
-    def modulo(self, num):
-        self.result %= num  
+    def subtract(self, num1, num2):
+        self.result = num1 - num2
+
+    def multiply(self, num1, num2):
+        self.result = num1 * num2
+
+    def divide(self, num1, num2):
+        self.result = num1 / num2
+
+    def power(self, num1, num2):
+        self.result = num1 ** num2
+    
+    def root(self, num1, num2):
+        self.result = num1 ** (1/num2)
+    
+    def floor_divide(self, num1, num2):
+        self.result = num1 // num2
+        
+    def modulo(self, num1, num2):
+        self.result = num1 % num2
     
     def get_result(self):
         return self.result
@@ -98,27 +100,43 @@ def mainLoop_Step_Caculator():
         elif user_input == "+":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.add()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "-":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.subtract()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "*":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.multiply()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "/":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.divide()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "**":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.power()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "//":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.floor_divide()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "%":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.modulo()
+            print(Step_Caculator.get_result())
+            
         elif user_input == "sqrt":
             Step_Caculator.two_numbs_ask()
             Step_Caculator.root()
+            print(Step_Caculator.get_result())
+            
         else:
             print("Invalid input")
             
@@ -134,10 +152,9 @@ def switching_opperators():
     while True:
         if input("Do you want to switch opperations? (y/n) ") == "y":
             if input("Do you want to switch to the group calculator? (y/n) ") == "y":
-                
-                #mainLoop_Group_Caculator()
+                mainLoop_Group_Caculator()
             if input("Do you want to switch to the step calculator? (y/n) ") == "y":
-                #mainLoop_Step_Caculator()
+                mainLoop_Step_Caculator()
         if input("Do you want to exit the calculator? (y/n) ") == "y":
             break
         
