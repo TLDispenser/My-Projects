@@ -6,8 +6,8 @@ allowed_costants = [("result", 0), ("PI", math.pi), ("e", math.e)]
 class Step_Caculator:
     def __init__(self):
         self.result = allowed_costants[0][2]
-        num1 = 0
-        num2 = 0
+        self.num1 = 0
+        self.num2 = 0
 
     def two_numbs_ask(self):
         while True:
@@ -98,7 +98,7 @@ def mainLoop_Step_Caculator():
             print("You can only use the following opperations: {allowed_opp}")
             print("You can only use the following constants: {allowed_costants}")
         elif user_input == "+":
-            Step_Caculator.two_numbs_ask()
+            Step_Caculator.two_numbs_ask(self=Step_Caculator)
             Step_Caculator.add()
             print(Step_Caculator.get_result())
             
@@ -146,6 +146,7 @@ def mainLoop_Group_Caculator():
     print("Welcome to the group calculator")
     while True:
         print(f"You can only use the following opperations: {allowed_opp}")
+        break
     
     
 def switching_opperators():
