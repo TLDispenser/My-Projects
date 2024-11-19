@@ -1,10 +1,39 @@
 #Milo Troup P:6
+import math
 allowed_opp = ["+", "-", "*", "/", "**", "//", "%", "sqrt"]
-allowed_costants = ["PI", "e"]
+allowed_costants = [("result", 0), ("PI", math.pi), ("e", math.e)]
 
 class Step_Caculator:
     def __init__(self):
-        self.result = 0
+        self.result = allowed_costants[0][2]
+    
+    def two_numbs_ask(self):
+        while True:
+            num1 = input("Put the first number: ")
+            num2 = input("Put the second number: ")
+            try:
+                num1 = float(num1)
+            except ValueError:
+                for constant in allowed_costants:
+                    if num1 == constant[0]:
+                        num1 = constant[1]
+                        break
+                else:
+                    print("Invalid input for the first number. Please try again.")
+                    continue
+
+            try:
+                num2 = float(num2)
+            except ValueError:
+                for constant in allowed_costants:
+                    if num2 == constant[0]:
+                        num2 = constant[1]
+                        break
+                else:
+                    print("Invalid input for the second number. Please try again.")
+                    continue
+
+            return num1, num2
 
     def add(self, num):
         self.result += num
@@ -46,13 +75,53 @@ class Group_Caculator:
         self.result = 0
     
 
+   
 def mainLoop_Step_Caculator():
     print("Welcome to the step calculator")
-    if input("Do you need help? (y/n) ") == "y":
-        print("You can only use the following opperations: {allowed_opp}")
-        print("You can only use the following constants: {allowed_costants}")
     while True:
-        break
+        print('Say "+" to add')
+        print('"-" to subtract')
+        print('"*" to multiply')
+        print('"/" to divide')
+        print('"**" to power')
+        print('"//" to floor divide')
+        print('"%"" to modulo')
+        print('"sqrt" to root')
+        print('"r" to get previous result')
+        print('"c" to clear previous result')
+        
+        user_input = input("Put number of what to do. ")
+
+        if user_input == "h":
+            print("You can only use the following opperations: {allowed_opp}")
+            print("You can only use the following constants: {allowed_costants}")
+        elif user_input == "+":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.add()
+        elif user_input == "-":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.subtract()
+        elif user_input == "*":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.multiply()
+        elif user_input == "/":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.divide()
+        elif user_input == "**":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.power()
+        elif user_input == "//":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.floor_divide()
+        elif user_input == "%":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.modulo()
+        elif user_input == "sqrt":
+            Step_Caculator.two_numbs_ask()
+            Step_Caculator.root()
+        else:
+            print("Invalid input")
+            
     
     
 def mainLoop_Group_Caculator():
@@ -61,17 +130,18 @@ def mainLoop_Group_Caculator():
         print(f"You can only use the following opperations: {allowed_opp}")
     
     
-
-while True:
-    if input("Do you want to switch opperations? (y/n) ") == "y":
-        if input("Do you want to switch to the group calculator? (y/n) ") == "y":
-            mainLoop_Group_Caculator()
-        if input("Do you want to switch to the step calculator? (y/n) ") == "y":
-            mainLoop_Step_Caculator()
-    if input("Do you want to exit the calculator? (y/n) ") == "y":
-        break
-    
-    
+def switching_opperators():
+    while True:
+        if input("Do you want to switch opperations? (y/n) ") == "y":
+            if input("Do you want to switch to the group calculator? (y/n) ") == "y":
+                
+                #mainLoop_Group_Caculator()
+            if input("Do you want to switch to the step calculator? (y/n) ") == "y":
+                #mainLoop_Step_Caculator()
+        if input("Do you want to exit the calculator? (y/n) ") == "y":
+            break
+        
+        
 print("Welcome to the calculator")
 if input("Do you want to use the group calculator or step calculator? (g/s) ") == "g":
     mainLoop_Group_Caculator()
