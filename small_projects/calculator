@@ -40,31 +40,55 @@ class Step_Caculator:
             return num1, num2
 
     def add(self, num1, num2):
-        self.result = num1 + num2
-        
+        try:
+            self.result = num1 + num2
+        except OverflowError:
+            print("Overflow error occurred during addition.")
+
     def subtract(self, num1, num2):
-        self.result = num1 - num2
+        try:
+            self.result = num1 - num2
+        except OverflowError:
+            print("Overflow error occurred during subtraction.")
 
     def multiply(self, num1, num2):
-        self.result = num1 * num2
+        try:
+            self.result = num1 * num2
+        except OverflowError:
+            print("Overflow error occurred during multiplication.")
 
     def divide(self, num1, num2):
         while num2 == 0:
             print("You can't divide by 0")
             num2 = input("Put the second number: (not 0) ")
-        self.result = num1 / num2
+        try:
+            self.result = num1 / num2
+        except OverflowError:
+            print("Overflow error occurred during division.")
 
     def power(self, num1, num2):
-        self.result = num1 ** num2
-    
+        try:
+            self.result = num1 ** num2
+        except OverflowError:
+            print("Overflow error occurred during power operation.")
+
     def root(self, num1, num2):
-        self.result = num1 ** (1/num2)
-    
+        try:
+            self.result = num1 ** num2
+        except OverflowError:
+            print("Overflow error occurred during root operation.")
+
     def floor_divide(self, num1, num2):
-        self.result = num1 // num2
-        
+        try:
+            self.result = num1 // num2
+        except OverflowError:
+            print("Overflow error occurred during floor division.")
+
     def modulo(self, num1, num2):
-        self.result = num1 % num2
+        try:
+            self.result = num1 % num2
+        except OverflowError:
+            print("Overflow error occurred during modulo operation.")
     
     def get_result(self):
         return self.result
