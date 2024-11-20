@@ -1,11 +1,13 @@
 #Milo Troup P:6
 import math
 allowed_opp = ["+", "-", "*", "/", "**", "//", "%", "sqrt"]
-allowed_costants = [("result", 0), ("PI", math.pi), ("e", math.e)]
+allowed_costants = [["result", 0], ("PI", math.pi), ("e", math.e)]
+
+break_loop = False
 
 class Step_Caculator:
     def __init__(self):
-        self.result = allowed_costants[0][2]
+        self.result = allowed_costants[0][1]
         self.num1 = 0
         self.num2 = 0
 
@@ -65,22 +67,22 @@ class Step_Caculator:
         return self.result
     
     def reset(self):
-        self.result = 0
+        allowed_costants[0][1] = 0
         
     def set_result(self, num):
-        self.result = num
+        allowed_costants[0][1] = self.result
         
         
 
 class Group_Caculator:
     def __init__(self):
-        self.result = 0
+        self.result = allowed_costants[0][1]
     
 
    
 def mainLoop_Step_Caculator():
     print("Welcome to the step calculator")
-    while True:
+    while break_loop == False:
         print('Say "+" to add')
         print('"-" to subtract')
         print('"*" to multiply')
@@ -91,61 +93,60 @@ def mainLoop_Step_Caculator():
         print('"sqrt" to root')
         print('"r" to get previous result')
         print('"c" to clear previous result')
+        print("Say 'e' to exit the step calculator")
         
         user_input = input("Put number of what to do. ")
 
+        calculator = Step_Caculator()
+        
         if user_input == "h":
-            print("You can only use the following opperations: {allowed_opp}")
-            print("You can only use the following constants: {allowed_costants}")
+            print(f"You can only use the following operations: {allowed_opp}")
+            print(f"You can only use the following constants: {allowed_costants}")
         elif user_input == "+":
-            Step_Caculator.two_numbs_ask(self=Step_Caculator)
-            Step_Caculator.add()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.add(num1, num2)
         elif user_input == "-":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.subtract()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.subtract(num1, num2)
         elif user_input == "*":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.multiply()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.multiply(num1, num2)
         elif user_input == "/":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.divide()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.divide(num1, num2)
         elif user_input == "**":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.power()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.power(num1, num2)
         elif user_input == "//":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.floor_divide()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.floor_divide(num1, num2)
         elif user_input == "%":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.modulo()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.modulo(num1, num2)
         elif user_input == "sqrt":
-            Step_Caculator.two_numbs_ask()
-            Step_Caculator.root()
-            print(Step_Caculator.get_result())
-            
+            num1, num2 = calculator.two_numbs_ask()
+            calculator.root(num1, num2)
+        elif user_input == "r":
+            print(calculator.get_result())
+        elif user_input == "c":
+            calculator.reset()
+            print("Result has been reset.")
+        elif user_input == "e":
+            switching_opperators()
         else:
             print("Invalid input")
-            
+        if user_input != "r" and user_input != "c":
+            calculator.set_result(calculator.get_result())
+            print(calculator.get_result())
+        print()
     
     
 def mainLoop_Group_Caculator():
     print("Welcome to the group calculator")
-    while True:
+    while break_loop == False:
         print(f"You can only use the following opperations: {allowed_opp}")
+        print("this is not yet done")
+        switching_opperators()
         break
     
     
@@ -157,6 +158,8 @@ def switching_opperators():
             if input("Do you want to switch to the step calculator? (y/n) ") == "y":
                 mainLoop_Step_Caculator()
         if input("Do you want to exit the calculator? (y/n) ") == "y":
+            global break_loop
+            break_loop = True
             break
         
         
