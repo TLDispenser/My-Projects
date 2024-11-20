@@ -106,6 +106,8 @@ class Group_Caculator:
     def __init__(self):
         self.result = allowed_costants[0][1]
     
+    def group(self, problem):
+        
 
    
 def mainLoop_Step_Caculator():
@@ -171,10 +173,24 @@ def mainLoop_Step_Caculator():
     
 def mainLoop_Group_Caculator():
     print("Welcome to the group calculator")
+    print(f"You can only use the following opperations: {allowed_opp}")
+    print(f"You can only use the following costants: {allowed_costants}")
     while break_loop == False:
-        print(f"You can only use the following opperations: {allowed_opp}")
-        print("this is not yet done")
-        switching_opperators()
+        calculator = Group_Caculator()
+        print('Say "d" to put the problem')
+        print('"r" to get previous result')
+        print('"c" to clear previous result')
+        print("Say 'e' to exit the step calculator")
+        user_input = input("Put letter of what to do. ")
+        if user_input == "h":
+            calculator.group(input("Put the problem: "))
+        elif user_input == "r":
+            print(calculator.get_result())
+            calculator.set_result(calculator.get_result())
+        print(calculator.get_result())
+        if input("Do you want to exit the group calculator? (y/n) ") == "y":
+            switching_opperators()
+        
         break
     
     
