@@ -49,6 +49,9 @@ class Step_Caculator:
         self.result = num1 * num2
 
     def divide(self, num1, num2):
+        while num2 == 0:
+            print("You can't divide by 0")
+            num2 = input("Put the second number: (not 0) ")
         self.result = num1 / num2
 
     def power(self, num1, num2):
@@ -70,6 +73,7 @@ class Step_Caculator:
         allowed_costants[0][1] = 0
         
     def set_result(self, num):
+        round(num, 3)
         allowed_costants[0][1] = self.result
         
         
