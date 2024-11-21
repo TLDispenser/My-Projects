@@ -107,7 +107,90 @@ class Group_Caculator:
         self.result = allowed_costants[0][1]
     
     def group(self, problem):
+        problem = problem.split()
+        for i in range(len(problem)):
+            if problem[i] in allowed_opp:
+                if problem[i] == "+":
+                    self.add(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "-":
+                    self.subtract(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "*":
+                    self.multiply(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "/":
+                    self.divide(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "**":
+                    self.power(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "//":
+                    self.floor_divide(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "%":
+                    self.modulo(float(problem[i-1]), float(problem[i+1]))
+                elif problem[i] == "sqrt":
+                    self.root(float(problem[i-1]), float(problem[i+1]))
+                else:
+                    print("Invalid opperation")
+                    break
+        return self.result
+
+    def add(self, num1, num2):
+        try:
+            self.result = num1 + num2
+        except OverflowError:
+            print("Overflow error occurred during addition.")
+
+    def subtract(self, num1, num2):
+        try:
+            self.result = num1 - num2
+        except OverflowError:
+            print("Overflow error occurred during subtraction.")
+
+    def multiply(self, num1, num2):
+        try:
+            self.result = num1 * num2
+        except OverflowError:
+            print("Overflow error occurred during multiplication.")
+
+    def divide(self, num1, num2):
+        while num2 == 0:
+            print("You can't divide by 0")
+            num2 = input("Put the second number: (not 0) ")
+        try:
+            self.result = num1 / num2
+        except OverflowError:
+            print("Overflow error occurred during division.")
+
+    def power(self, num1, num2):
+        try:
+            self.result = num1 ** num2
+        except OverflowError:
+            print("Overflow error occurred during power operation.")
+
+    def root(self, num1, num2):
+        try:
+            self.result = num1 ** num2
+        except OverflowError:
+            print("Overflow error occurred during root operation.")
+
+    def floor_divide(self, num1, num2):
+        try:
+            self.result = num1 // num2
+        except OverflowError:
+            print("Overflow error occurred during floor division.")
+
+    def modulo(self, num1, num2):
+        try:
+            self.result = num1 % num2
+        except OverflowError:
+            print("Overflow error occurred during modulo operation.")
+    
+    def get_result(self):
+        return self.result
+    
+    def reset(self):
+        allowed_costants[0][1] = 0
         
+    def set_result(self, num):
+        round(num, 3)
+        allowed_costants[0][1] = self.result
 
    
 def mainLoop_Step_Caculator():
@@ -173,6 +256,10 @@ def mainLoop_Step_Caculator():
     
 def mainLoop_Group_Caculator():
     print("Welcome to the group calculator")
+    print("WARNING this is a work in progress")
+    print("WARNING you will need spaces inbetween numbers and opperations")
+    print("WARNING will not follow order of operations")
+    print("Example: 1 + 2 * 3 will equal 9 not 7")
     print(f"You can only use the following opperations: {allowed_opp}")
     print(f"You can only use the following costants: {allowed_costants}")
     while break_loop == False:
@@ -182,16 +269,19 @@ def mainLoop_Group_Caculator():
         print('"c" to clear previous result')
         print("Say 'e' to exit the step calculator")
         user_input = input("Put letter of what to do. ")
-        if user_input == "h":
-            calculator.group(input("Put the problem: "))
+        if user_input == "d":
+            problem = input("Put the problem: ")
+            calculator.group(problem)
+            calculator.set_result(calculator.get_result())
+            print(calculator.get_result())
         elif user_input == "r":
             print(calculator.get_result())
-            calculator.set_result(calculator.get_result())
-        print(calculator.get_result())
-        if input("Do you want to exit the group calculator? (y/n) ") == "y":
+        elif user_input == "c":
+            calculator.reset()
+            print("Result has been reset.")
+        elif user_input == "e":
             switching_opperators()
-        
-        break
+        print()
     
     
 def switching_opperators():
