@@ -102,11 +102,11 @@ class Step_Caculator:
         
         
 
-class Group_Caculator:
+class Smooth_Caculator:
     def __init__(self):
         self.result = allowed_costants[0][1]
     
-    def group(self, problem):
+    def Smooth(self, problem):
         problem = problem.split()
         for i in range(len(problem)):
             if problem[i] in allowed_opp:
@@ -254,8 +254,8 @@ def mainLoop_Step_Caculator():
         print()
     
     
-def mainLoop_Group_Caculator():
-    print("Welcome to the group calculator")
+def mainLoop_Smooth_Caculator():
+    print("Welcome to the Smooth calculator")
     print("WARNING this is a work in progress")
     print("WARNING you will need spaces inbetween numbers and opperations")
     print("WARNING will not follow order of operations")
@@ -263,7 +263,7 @@ def mainLoop_Group_Caculator():
     print(f"You can only use the following opperations: {allowed_opp}")
     print(f"You can only use the following costants: {allowed_costants}")
     while break_loop == False:
-        calculator = Group_Caculator()
+        calculator = Smooth_Caculator()
         print('Say "d" to put the problem')
         print('"r" to get previous result')
         print('"c" to clear previous result')
@@ -271,7 +271,7 @@ def mainLoop_Group_Caculator():
         user_input = input("Put letter of what to do. ")
         if user_input == "d":
             problem = input("Put the problem: ")
-            calculator.group(problem)
+            calculator.Smooth(problem)
             calculator.set_result(calculator.get_result())
             print(calculator.get_result())
         elif user_input == "r":
@@ -287,8 +287,8 @@ def mainLoop_Group_Caculator():
 def switching_opperators():
     while True:
         if input("Do you want to switch opperations? (y/n) ") == "y":
-            if input("Do you want to switch to the group calculator? (y/n) ") == "y":
-                mainLoop_Group_Caculator()
+            if input("Do you want to switch to the Smooth calculator? (y/n) ") == "y":
+                mainLoop_Smooth_Caculator()
             if input("Do you want to switch to the step calculator? (y/n) ") == "y":
                 mainLoop_Step_Caculator()
         if input("Do you want to exit the calculator? (y/n) ") == "y":
@@ -298,8 +298,7 @@ def switching_opperators():
         
         
 print("Welcome to the calculator")
-if input("Do you want to use the group calculator or step calculator? (g/s) ") == "g":
-    mainLoop_Group_Caculator()
+if input("Do you want to use the smooth calculator or step calculator? (g/s) ") == "g":
+    mainLoop_Smooth_Caculator()
 else:
     mainLoop_Step_Caculator()
-
