@@ -1,16 +1,21 @@
-#Milo Troup P:6
 import math
+
+# List of allowed operations and constants
 allowed_opp = ["+", "-", "*", "/", "**", "//", "%", "sqrt"]
 allowed_costants = [["result", 0], ("PI", math.pi), ("e", math.e)]
 
+# Flag to control the main loop
 break_loop = False
 
+# Class representing a step-by-step calculator
 class Step_Caculator:
     def __init__(self):
+        # Initialize result and input numbers
         self.result = allowed_costants[0][1]
         self.num1 = 0
         self.num2 = 0
 
+    # Method to ask for two numbers
     def two_numbs_ask(self):
         while True:
             num1 = input("Put the first number: ")
@@ -39,24 +44,28 @@ class Step_Caculator:
 
             return num1, num2
 
+    # Method to perform addition
     def add(self, num1, num2):
         try:
             self.result = num1 + num2
         except OverflowError:
             print("Overflow error occurred during addition.")
 
+    # Method to perform subtraction
     def subtract(self, num1, num2):
         try:
             self.result = num1 - num2
         except OverflowError:
             print("Overflow error occurred during subtraction.")
 
+    # Method to perform multiplication
     def multiply(self, num1, num2):
         try:
             self.result = num1 * num2
         except OverflowError:
             print("Overflow error occurred during multiplication.")
 
+    # Method to perform division
     def divide(self, num1, num2):
         while num2 == 0:
             print("You can't divide by 0")
@@ -66,46 +75,54 @@ class Step_Caculator:
         except OverflowError:
             print("Overflow error occurred during division.")
 
+    # Method to perform exponentiation
     def power(self, num1, num2):
         try:
             self.result = num1 ** num2
         except OverflowError:
             print("Overflow error occurred during power operation.")
 
+    # Method to perform square root
     def root(self, num1, num2):
         try:
             self.result = num1 ** num2
         except OverflowError:
             print("Overflow error occurred during root operation.")
 
+    # Method to perform floor division
     def floor_divide(self, num1, num2):
         try:
             self.result = num1 // num2
         except OverflowError:
             print("Overflow error occurred during floor division.")
 
+    # Method to perform modulo operation
     def modulo(self, num1, num2):
         try:
             self.result = num1 % num2
         except OverflowError:
             print("Overflow error occurred during modulo operation.")
     
+    # Method to get the current result
     def get_result(self):
         return self.result
     
+    # Method to reset the result to 0
     def reset(self):
         allowed_costants[0][1] = 0
         
+    # Method to set the result
     def set_result(self, num):
         round(num, 3)
         allowed_costants[0][1] = self.result
-        
-        
 
+# Class representing a smooth calculator
 class Smooth_Caculator:
     def __init__(self):
+        # Initialize result
         self.result = allowed_costants[0][1]
     
+    # Method to evaluate a mathematical expression
     def Smooth(self, problem):
         problem = problem.split()
         for i in range(len(problem)):
@@ -127,28 +144,32 @@ class Smooth_Caculator:
                 elif problem[i] == "sqrt":
                     self.root(float(problem[i-1]), float(problem[i+1]))
                 else:
-                    print("Invalid opperation")
+                    print("Invalid operation")
                     break
         return self.result
 
+    # Method to perform addition
     def add(self, num1, num2):
         try:
             self.result = num1 + num2
         except OverflowError:
             print("Overflow error occurred during addition.")
 
+    # Method to perform subtraction
     def subtract(self, num1, num2):
         try:
             self.result = num1 - num2
         except OverflowError:
             print("Overflow error occurred during subtraction.")
 
+    # Method to perform multiplication
     def multiply(self, num1, num2):
         try:
             self.result = num1 * num2
         except OverflowError:
             print("Overflow error occurred during multiplication.")
 
+    # Method to perform division
     def divide(self, num1, num2):
         while num2 == 0:
             print("You can't divide by 0")
@@ -158,41 +179,48 @@ class Smooth_Caculator:
         except OverflowError:
             print("Overflow error occurred during division.")
 
+    # Method to perform exponentiation
     def power(self, num1, num2):
         try:
             self.result = num1 ** num2
         except OverflowError:
             print("Overflow error occurred during power operation.")
 
+    # Method to perform square root
     def root(self, num1, num2):
         try:
             self.result = num1 ** num2
         except OverflowError:
             print("Overflow error occurred during root operation.")
 
+    # Method to perform floor division
     def floor_divide(self, num1, num2):
         try:
             self.result = num1 // num2
         except OverflowError:
             print("Overflow error occurred during floor division.")
 
+    # Method to perform modulo operation
     def modulo(self, num1, num2):
         try:
             self.result = num1 % num2
         except OverflowError:
             print("Overflow error occurred during modulo operation.")
     
+    # Method to get the current result
     def get_result(self):
         return self.result
     
+    # Method to reset the result to 0
     def reset(self):
         allowed_costants[0][1] = 0
         
+    # Method to set the result
     def set_result(self, num):
         round(num, 3)
         allowed_costants[0][1] = self.result
 
-   
+# Main loop for the step calculator
 def mainLoop_Step_Caculator():
     print("Welcome to the step calculator")
     while break_loop == False:
@@ -253,7 +281,7 @@ def mainLoop_Step_Caculator():
             print(calculator.get_result())
         print()
     
-    
+# Main loop for the smooth calculator
 def mainLoop_Smooth_Caculator():
     print("Welcome to the Smooth calculator")
     print("WARNING this is a work in progress")
@@ -281,8 +309,8 @@ def mainLoop_Smooth_Caculator():
         elif user_input == "e":
             switching_opperators()
         print()
-    
-    
+
+# Function to switch between calculators
 def switching_opperators():
     while True:
         if input("Do you want to switch opperations? (y/n) ") == "y":
@@ -295,7 +323,7 @@ def switching_opperators():
             break_loop = True
             break
         
-        
+# Entry point of the program
 print("Welcome to the calculator")
 if input("Do you want to use the smooth calculator or step calculator? (s/s) ") == "s":
     mainLoop_Smooth_Caculator()
