@@ -258,8 +258,7 @@ def mainLoop_Smooth_Caculator():
     print("Welcome to the Smooth calculator")
     print("WARNING this is a work in progress")
     print("WARNING you will need spaces inbetween numbers and opperations")
-    print("WARNING will not follow order of operations")
-    print("Example: 1 + 2 * 3 will equal 9 not 7")
+    print("WARNING if you put 1 + 1 + 2 it will ignore all things before 1 + 2")
     print(f"You can only use the following opperations: {allowed_opp}")
     print(f"You can only use the following costants: {allowed_costants}")
     while break_loop == False:
@@ -298,7 +297,7 @@ def switching_opperators():
         
         
 print("Welcome to the calculator")
-if input("Do you want to use the smooth calculator or step calculator? (g/s) ") == "g":
+if input("Do you want to use the smooth calculator or step calculator? (s/s) ") == "s":
     mainLoop_Smooth_Caculator()
 else:
     mainLoop_Step_Caculator()
