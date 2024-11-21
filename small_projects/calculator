@@ -325,7 +325,7 @@ def switching_opperators():
         
 # Entry point of the program
 print("Welcome to the calculator")
-if input("Do you want to use the smooth calculator or step calculator? (s/s) ") == "s":
+if input("Do you want to use the smooth calculator or step calculator? (sm/s) ") == "sm":
     mainLoop_Smooth_Caculator()
 else:
     mainLoop_Step_Caculator()
