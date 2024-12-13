@@ -1,0 +1,15 @@
+side_length = 10
+def calculate_area(side_length = 10):
+    side_length = 10
+    while True:
+        side_length = 10
+        side_length = int(input("Enter side length: "))
+        if side_length > 0:
+            break
+        else:
+            side_length = 10
+            break
+    area = side_length**2
+    print("The area of a square with sides of length " + str(side_length) + " is " + str(area))
+calculate_area(side_length)
+side_length = "10"
