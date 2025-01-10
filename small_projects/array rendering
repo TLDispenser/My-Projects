@@ -2,6 +2,9 @@ import pygame
 import math
 import numpy as np
 
+#models
+from modles import MODLES
+
 # Initialize Pygame
 pygame.init()
 
@@ -35,15 +38,11 @@ class HumanMadeShape:
         self.faces = []
         self.pivot = (0, 0, 0)
         if input("Do you already have a work in progress shape? (y/n): ") == "y":
-            print("Format for vertices: [(x1, y1, z1), (x2, y2, z2), ...]")
-            self.vertices = eval(input("Enter the vertices of the shape: "))
-            print("Format for edges: [[start_vertex1, end_vertex1], [start_vertex2, end_vertex2], ...]")
-            self.edges = eval(input("Enter the edges of the shape: "))
-            print("Format for faces: [[[vertex1, vertex2, vertex3, ..., vertexn], color1], ...]")
-            self.faces = eval(input("Enter the faces of the shape: "))
-            print("Format for pivot: (x, y, z)")
-            self.pivot = eval(input("Enter the pivot point of the shape: "))
-
+            if input ("Do you want to import a file? (y/n): ") == "y":
+                self.import_shape_from_file()
+            else:
+                self.import_shape_manually()
+                
     def add_new_vertex(self, x, y, z):
         self.vertices.append((x, y, z))
 
@@ -66,8 +65,44 @@ class HumanMadeShape:
         self.pivot = (x, y, z)
     
     def export_shape(self):
-        print("IN WORKS")
+        data = {
+            "vertices": self.vertices,
+            "edges": self.edges,
+            "faces": self.faces,
+            "pivot": self.pivot
+        }
+        shape_name = input("Enter the name of the shape: ")
+        with open("modles.py", "a") as file:
+            file.write(f"\nTEMP_MOVE = {{'{shape_name}': {data}}}")
+            
+    
+    def import_shape_from_file(self):
+        
+        while True:
+            print("Available shapes:")
+            for key in MODLES.keys():
+                print(key)
+            input_model = input("Enter the model you want to import: ")
+            if input_model in MODLES:
+                self.vertices = MODLES[input_model]["vertices"]
+                self.edges = MODLES[input_model]["edges"]
+                self.faces = MODLES[input_model]["faces"]
+                self.pivot = MODLES[input_model]["pivot"]
+                break
+            else:
+                print("Model not found.")
+        
+    def import_shape_manually(self):
+        print("Format for vertices: [(x1, y1, z1), (x2, y2, z2), ...]")
+        self.vertices = eval(input("Enter the vertices of the shape: "))
+        print("Format for edges: [(start_vertex1, end_vertex1), (start_vertex2, end_vertex2), ...]")
+        self.edges = eval(input("Enter the edges of the shape: "))
+        print("Format for faces: [((vertex1, vertex2, vertex3, ..., vertexn), color1), ...]")
+        self.faces = eval(input("Enter the faces of the shape: "))
+        print("Format for pivot: (x, y, z)")
+        self.pivot = eval(input("Enter the pivot point of the shape: "))
 
+        
 #shape selection / creation
 if input("Do you want to use the default shape? (y/n): ") == "y":
     cube = True  # Set to False to render a different shape
@@ -201,17 +236,22 @@ def main():
     running = True
 
     while running:
+        # Single input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    if making:
+                        if input("Do you want to save your shape? (y/n): ") == "y":
+                            working_shape.export_shape()
                     running = False
-            if making:
-                if keys[pygame.K_SLASH]:
+                elif event.key == pygame.K_SLASH and making:
                     global show_edges
                     show_edges = not show_edges
                     print("Edges are now " + ("on" if show_edges else "off"))
+        
+        # Contunious input
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             angle_y -= 0.1
@@ -246,9 +286,14 @@ def main():
                             print("Format for color: (r, g, b) up to 255")
                             temp_color = eval(input())
                             screen.fill(temp_color)
-                            this_color = input("Is this the color you want? (y/n): ")
+                            pygame.display.flip()
+                            this_color = input("Is this the color you want? (y/n): (see screen for color)")
                             if this_color == "y":
                                 break
+                        temp_vertices = ""
+                        for i in range(len(vertices)):
+                            temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
+                        print("Here are the vertices you have: \n" + str(temp_vertices))
                         print("Format for vertex: (vertex1, vertex2, vertex3, ..., vertexn)")
                         working_shape.add_new_face(eval(input()), temp_color)
                 except Exception as e:
