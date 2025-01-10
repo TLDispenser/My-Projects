@@ -136,8 +136,11 @@ if input("Do you want to use the default shape? (y/n): ") == "y":
 else:
     making = True
     working_shape = HumanMadeShape
+    vertices = working_shape.vertices
+    edges = working_shape.edges
+    faces = working_shape.faces
+    pivot = working_shape.pivot
     
-
 
 def project(x, y, z, scale, distance):
     factor = scale / (distance + z)
@@ -225,9 +228,25 @@ def main():
         if keys[pygame.K_c]:
             pos_y -= 0.1
         if keys[pygame.K_m] and making:
-        
+            if input("Do you want to add a new face? (y/n): ") == "y":
+                print("Enter the vertices of the face you want to add: ")
+                while True:
+                    print("Format for color: (r, g, b) up to 255")
+                    temp_color = eval(input())
+                    screen.fill(temp_color)
+                    this_color = input("Is this the color you want? (y/n): ")
+                    if this_color == "y":
+                        break
+                print("Format for vertex: (vertex1, vertex2, vertex3, ..., vertexn)")
+                working_shape.add_new_face(eval(input()), (255, 255, 255))
         if keys[pygame.K_n] and making:
             if input("Do you want to add a new edge? (y/n): ") == "y":
+                print("Enter the vertice # of the edge you want to add: ")
+                for i in range(len(vertices)):
+                        temp_vertices += (str(i) + ": " + str(vertices[i]))
+                print("Here are the vertices you have: \n" + str(temp_vertices))
+                print("Format: (vertex1, vertex2)")
+                working_shape.add_new_edge(*eval(input()))
         if keys[pygame.K_b] and making:
             if input("Do you want to add a new vertex? (y/n): ") == "y":
                 print("Enter the vertex you want to add: ")
@@ -262,7 +281,7 @@ def main():
                     print("Enter the index of the face you want to remove: ")
                     print("Here are the faces you have: \n" + str(temp_faces))
                     working_shape.remove_previous_face(int(input()))
-        if keys[pygame.K_SLASH]:
+        if keys[pygame.K_SLASH] and making:
             show_edges = not show_edges
         
         screen.fill(BLACK)
