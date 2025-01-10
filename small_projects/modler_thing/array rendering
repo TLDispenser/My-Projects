@@ -6,7 +6,7 @@ import numpy as np
 from modles import MODLES
 
 # Quick fix
-quick_fix = True
+quick_fix = False
 
 # Initialize Pygame
 pygame.init()
@@ -17,7 +17,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("3D Rendering Engine")
 
 # Colors
-invert_colors = True
+invert_colors = False
 if invert_colors:
     WHITE = (0, 0, 0)
     BLACK = (255, 255, 255)
