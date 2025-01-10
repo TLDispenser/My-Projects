@@ -35,9 +35,13 @@ class HumanMadeShape:
         self.faces = []
         self.pivot = (0, 0, 0)
         if input("Do you already have a work in progress shape? (y/n): ") == "y":
+            print("Format for vertices: [(x1, y1, z1), (x2, y2, z2), ...]")
             self.vertices = eval(input("Enter the vertices of the shape: "))
+            print("Format for edges: [(start_vertex1, end_vertex1), (start_vertex2, end_vertex2), ...]")
             self.edges = eval(input("Enter the edges of the shape: "))
+            print("Format for faces: [((vertex1, vertex2, vertex3, ..., vertexn), color1), ...]")
             self.faces = eval(input("Enter the faces of the shape: "))
+            print("Format for pivot: (x, y, z)")
             self.pivot = eval(input("Enter the pivot point of the shape: "))
 
     def add_new_vertex(self, x, y, z):
@@ -135,7 +139,7 @@ if input("Do you want to use the default shape? (y/n): ") == "y":
         ]
 else:
     making = True
-    working_shape = HumanMadeShape
+    working_shape = HumanMadeShape()
     vertices = working_shape.vertices
     edges = working_shape.edges
     faces = working_shape.faces
@@ -242,8 +246,9 @@ def main():
         if keys[pygame.K_n] and making:
             if input("Do you want to add a new edge? (y/n): ") == "y":
                 print("Enter the vertice # of the edge you want to add: ")
+                temp_vertices = ""
                 for i in range(len(vertices)):
-                        temp_vertices += (str(i) + ": " + str(vertices[i]))
+                    temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
                 print("Here are the vertices you have: \n" + str(temp_vertices))
                 print("Format: (vertex1, vertex2)")
                 working_shape.add_new_edge(*eval(input()))
@@ -263,26 +268,28 @@ def main():
                 if what_to_remove == "v" or what_to_remove == "vertex":
                     temp_vertices = ""
                     for i in range(len(vertices)):
-                        temp_vertices += (str(i) + ": " + str(vertices[i]))
+                        temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
                     print("Enter the index of the vertex you want to remove: ")
                     print("Here are the vertices you have: \n" + str(temp_vertices))
                     working_shape.remove_previous_vertex(int(input()))
                 elif what_to_remove == "e" or what_to_remove == "edge":
                     temp_edges = ""
                     for i in range(len(edges)):
-                        temp_edges += (str(i) + ": " + str(edges[i]))
+                        temp_edges += (str(i) + ": " + str(edges[i]) + " ")
                     print("Enter the index of the edge you want to remove: ")
                     print("Here are the edges you have: \n" + str(temp_edges))
                     working_shape.remove_previous_edge(int(input()))
                 elif what_to_remove == "f" or what_to_remove == "face":
                     temp_faces = ""
                     for i in range(len(faces)):
-                        temp_faces += (str(i) + ": " + str(faces[i]))
+                        temp_faces += (str(i) + ": " + str(faces[i]) + " ")
                     print("Enter the index of the face you want to remove: ")
                     print("Here are the faces you have: \n" + str(temp_faces))
                     working_shape.remove_previous_face(int(input()))
         if keys[pygame.K_SLASH] and making:
+            global show_edges
             show_edges = not show_edges
+            print("Edges are now " + ("on" if show_edges else "off"))
         
         screen.fill(BLACK)
         #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
