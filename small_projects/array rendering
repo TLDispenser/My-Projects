@@ -14,76 +14,130 @@ pygame.display.set_caption("3D Rendering Engine")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-cube = True  # Set to False to render a different shape
-if cube:
-    # Cube vertices
-    # (x, y, z)
-    vertices = [
-        (-1, -1, -1),
-        (1, -1, -1),
-        (1, 1, -1),
-        (-1, 1, -1),
-        (-1, -1, 1),
-        (1, -1, 1),
-        (1, 1, 1),
-        (-1, 1, 1)
-    ]
+# Is the user creating a custom shape?
+making = False
+# Show edges?
+show_edges = False
+# Allows for the creation of custom shapes
+class HumanMadeShape:
+    # Initialize vertices, edges, and faces
+    def __init__(self):
+        print("Keybinds:")
+        print("(Once slected you can move virtces)")
+        print("b: Add a vertex ")
+        print("n: Add an edge")
+        print("m: Add a face")
+        print(",: Set pivot point")
+        print(".: Remove something")
+        print("/: Turn edge shows on/off")
+        self.vertices = []
+        self.edges = []
+        self.faces = []
+        self.pivot = (0, 0, 0)
+        if input("Do you already have a work in progress shape? (y/n): ") == "y":
+            self.vertices = eval(input("Enter the vertices of the shape: "))
+            self.edges = eval(input("Enter the edges of the shape: "))
+            self.faces = eval(input("Enter the faces of the shape: "))
+            self.pivot = eval(input("Enter the pivot point of the shape: "))
 
-    # Pivot point
-    pivot = (0, 0, 0)  # Pivot point
-    
-    # Cube edges
-    # (start_vertex, end_vertex)
-    edges = [
-        (0, 1), (1, 2), (2, 3), (3, 0),
-        (4, 5), (5, 6), (6, 7), (7, 4),
-        (0, 4), (1, 5), (2, 6), (3, 7)
-    ]
-     
-    # Cube faces
-    # (vertex1, vertex2, vertex3, vertex4, color)
-    faces = [
-        ((0, 1, 2, 3), (255, 0, 0)),
-        ((4, 5, 6, 7), (0, 255, 0)),
-        ((0, 1, 5, 4), (0, 0, 255)),
-        ((2, 3, 7, 6), (255, 255, 0)),
-        ((0, 3, 7, 4), (255, 0, 255)),
-        ((1, 2, 6, 5), (0, 255, 255))
-    ]
-else:
-    # Shape vertices
-    # (x, y, z)
-    vertices = [
-        (1, 1, -1),
-        (3, 1, 1),
-        (-1, 1, 1),
-        (1, 1, 3),
-        (1, 3, 1),
-        (1, -1, 1)
-    ]
-    # Pivot point
-    pivot = (1, 1, 1)  # Pivot point
-    # Shape edges
-    # (start_vertex, end_vertex)
-    edges = [
-        (0,1), (1,3), (3,2), (2,0),
-        (0,4), (1,4), (3,4), (2,4),
-        (0,5), (1,5), (3,5), (2,5)
-    ]
+    def add_new_vertex(self, x, y, z):
+        self.vertices.append((x, y, z))
 
-    # Shape faces
-    # (vertex1, vertex2, vertex3, color)
-    faces = [
-        ((0, 1, 4), (255, 0, 0)),
-        ((1, 3, 4), (0, 255, 0)),
-        ((3, 2, 4), (0, 0, 255)),
-        ((2, 0, 4), (255, 255, 0)),
-        ((0, 1, 5), (255, 0, 255)),
-        ((1, 3, 5), (0, 255, 255)),
-        ((3, 2, 5), (255, 255, 255)),
-        ((2, 0, 5), (155, 0, 0)),
-    ]
+    def add_new_edge(self, start_vertex, end_vertex):
+        self.edges.append((start_vertex, end_vertex))
+
+    def add_new_face(self, vertex_indices, color):
+        self.faces.append((vertex_indices, color))
+
+    def remove_previous_vertex(self, vertex_index):
+        self.vertices.pop(vertex_index)
+
+    def remove_previous_edge(self, edge_index):
+        self.edges.pop(edge_index)  
+
+    def remove_previous_face(self, face_index):
+        self.faces.pop(face_index)
+
+    def set_pivot(self, x, y, z):
+        self.pivot = (x, y, z)
         
+
+#shape selection / creation
+if input("Do you want to use the default shape? (y/n): ") == "y":
+    cube = True  # Set to False to render a different shape
+    if cube:
+        # Cube vertices
+        # (x, y, z)
+        vertices = [
+            (-1, -1, -1),
+            (1, -1, -1),
+            (1, 1, -1),
+            (-1, 1, -1),
+            (-1, -1, 1),
+            (1, -1, 1),
+            (1, 1, 1),
+            (-1, 1, 1)
+        ]
+
+        # Pivot point
+        pivot = (0, 0, 0)  # Pivot point
+        
+        # Cube edges
+        # (start_vertex, end_vertex)
+        edges = [
+            (0, 1), (1, 2), (2, 3), (3, 0),
+            (4, 5), (5, 6), (6, 7), (7, 4),
+            (0, 4), (1, 5), (2, 6), (3, 7)
+        ]
+        
+        # Cube faces
+        # ((vertex1, vertex2, vertex3, vertex4), color)
+        faces = [
+            ((0, 1, 2, 3), (255, 0, 0)),
+            ((4, 5, 6, 7), (0, 255, 0)),
+            ((0, 1, 5, 4), (0, 0, 255)),
+            ((2, 3, 7, 6), (255, 255, 0)),
+            ((0, 3, 7, 4), (255, 0, 255)),
+            ((1, 2, 6, 5), (0, 255, 255))
+        ]
+    else:
+        # Shape vertices
+        # (x, y, z)
+        vertices = [
+            (1, 1, -1),
+            (3, 1, 1),
+            (-1, 1, 1),
+            (1, 1, 3),
+            (1, 3, 1),
+            (1, -1, 1)
+        ]
+        # Pivot point
+        pivot = (1, 1, 1)  # Pivot point
+        # Shape edges
+        # (start_vertex, end_vertex)
+        edges = [
+            (0,1), (1,3), (3,2), (2,0),
+            (0,4), (1,4), (3,4), (2,4),
+            (0,5), (1,5), (3,5), (2,5)
+        ]
+
+        # Shape faces
+        # ((vertex1, vertex2, vertex3), color)
+        faces = [
+            ((0, 1, 4), (255, 0, 0)),
+            ((1, 3, 4), (0, 255, 0)),
+            ((3, 2, 4), (0, 0, 255)),
+            ((2, 0, 4), (255, 255, 0)),
+            ((0, 1, 5), (255, 0, 255)),
+            ((1, 3, 5), (0, 255, 255)),
+            ((3, 2, 5), (255, 255, 255)),
+            ((2, 0, 5), (155, 0, 0)),
+        ]
+else:
+    making = True
+    working_shape = HumanMadeShape
+    
+
 
 def project(x, y, z, scale, distance):
     factor = scale / (distance + z)
@@ -91,6 +145,7 @@ def project(x, y, z, scale, distance):
     y = -y * factor + HEIGHT // 2
     return int(x), int(y)
 
+# Draw faces and edges (edges are turned off by default because that overlaps the faces)
 def draw_faces_and_edges(transformed_vertices):
     # Calculate the average depth of each face
     face_depths = []
@@ -103,7 +158,7 @@ def draw_faces_and_edges(transformed_vertices):
     face_depths.sort(reverse=True, key=lambda x: x[0])
     
     # Draw faces in sorted order
-    for _, face in face_depths:
+    for i, face in face_depths:
         vertices_indices, color = face
         points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
         pygame.draw.polygon(screen, color, points)
@@ -123,7 +178,8 @@ def draw_faces_and_edges(transformed_vertices):
         for vertex in edge:
             x, y, z = transformed_vertices[vertex]
             points.append(project(x, y, z, 400, 4))
-        pygame.draw.line(screen, WHITE, points[0], points[1], 1)
+        if show_edges:
+            pygame.draw.line(screen, WHITE, points[0], points[1], 1)
 
 def main():
     clock = pygame.time.Clock()
@@ -133,7 +189,6 @@ def main():
     pos_x = 0
     pos_y = 0
     pos_z = 0
-    distance = 4
     running = True
 
     while running:
@@ -169,7 +224,47 @@ def main():
             pos_y += 0.1
         if keys[pygame.K_c]:
             pos_y -= 0.1
-
+        if keys[pygame.K_m] and making:
+        
+        if keys[pygame.K_n] and making:
+            if input("Do you want to add a new edge? (y/n): ") == "y":
+        if keys[pygame.K_b] and making:
+            if input("Do you want to add a new vertex? (y/n): ") == "y":
+                print("Enter the vertex you want to add: ")
+                print("Format: (x, y, z)")
+                working_shape.add_new_vertex(*eval(input()))
+        if keys[pygame.K_COMMA] and making:
+            print("Here are the vertices you have: \n" + str(vertices))
+            print("Enter the pivot point of the shape: ")
+            print("Format: (x, y, z)")
+            working_shape.set_pivot(*eval(input()))
+        if keys[pygame.K_PERIOD] and making:
+            if print("Do you want to remove something? (y/n): ") == "y":
+                what_to_remove = input("What do you want to remove? (vertex (v), edge (e), face (f)): ")
+                if what_to_remove == "v" or what_to_remove == "vertex":
+                    temp_vertices = ""
+                    for i in range(len(vertices)):
+                        temp_vertices += (str(i) + ": " + str(vertices[i]))
+                    print("Enter the index of the vertex you want to remove: ")
+                    print("Here are the vertices you have: \n" + str(temp_vertices))
+                    working_shape.remove_previous_vertex(int(input()))
+                elif what_to_remove == "e" or what_to_remove == "edge":
+                    temp_edges = ""
+                    for i in range(len(edges)):
+                        temp_edges += (str(i) + ": " + str(edges[i]))
+                    print("Enter the index of the edge you want to remove: ")
+                    print("Here are the edges you have: \n" + str(temp_edges))
+                    working_shape.remove_previous_edge(int(input()))
+                elif what_to_remove == "f" or what_to_remove == "face":
+                    temp_faces = ""
+                    for i in range(len(faces)):
+                        temp_faces += (str(i) + ": " + str(faces[i]))
+                    print("Enter the index of the face you want to remove: ")
+                    print("Here are the faces you have: \n" + str(temp_faces))
+                    working_shape.remove_previous_face(int(input()))
+        if keys[pygame.K_SLASH]:
+            show_edges = not show_edges
+        
         screen.fill(BLACK)
         #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
         # Rotate cube
