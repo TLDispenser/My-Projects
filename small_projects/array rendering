@@ -37,9 +37,9 @@ class HumanMadeShape:
         if input("Do you already have a work in progress shape? (y/n): ") == "y":
             print("Format for vertices: [(x1, y1, z1), (x2, y2, z2), ...]")
             self.vertices = eval(input("Enter the vertices of the shape: "))
-            print("Format for edges: [(start_vertex1, end_vertex1), (start_vertex2, end_vertex2), ...]")
+            print("Format for edges: [[start_vertex1, end_vertex1], [start_vertex2, end_vertex2], ...]")
             self.edges = eval(input("Enter the edges of the shape: "))
-            print("Format for faces: [((vertex1, vertex2, vertex3, ..., vertexn), color1), ...]")
+            print("Format for faces: [[[vertex1, vertex2, vertex3, ..., vertexn], color1], ...]")
             self.faces = eval(input("Enter the faces of the shape: "))
             print("Format for pivot: (x, y, z)")
             self.pivot = eval(input("Enter the pivot point of the shape: "))
@@ -64,7 +64,9 @@ class HumanMadeShape:
 
     def set_pivot(self, x, y, z):
         self.pivot = (x, y, z)
-        
+    
+    def export_shape(self):
+        print("IN WORKS")
 
 #shape selection / creation
 if input("Do you want to use the default shape? (y/n): ") == "y":
@@ -205,7 +207,11 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
+            if making:
+                if keys[pygame.K_SLASH]:
+                    global show_edges
+                    show_edges = not show_edges
+                    print("Edges are now " + ("on" if show_edges else "off"))
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             angle_y -= 0.1
@@ -302,10 +308,6 @@ def main():
                             working_shape.remove_previous_face(int(input()))
                 except Exception as e:
                     print(f"Error: {e}")
-            if keys[pygame.K_SLASH]:
-                global show_edges
-                show_edges = not show_edges
-                print("Edges are now " + ("on" if show_edges else "off"))
 
         
         screen.fill(BLACK)
