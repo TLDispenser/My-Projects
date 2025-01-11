@@ -3,10 +3,12 @@ import math
 import numpy as np
 
 #models
+print("Importing modles.... (Might take a while)")
 from modles import MODLES
-
+print("DONEEEEEEEEEEE")
+#modles
 # Quick fix
-quick_fix = False
+quick_fix = True
 
 # Initialize Pygame
 pygame.init()
@@ -139,8 +141,8 @@ def project(x, y, z, scale, distance):
     y = -y * factor + HEIGHT // 2
     return int(x), int(y)
 
-# Draw faces and edges (edges are turned off by default because that overlaps the faces)
-def draw_faces_and_edges(transformed_vertices, pos_moving_vertice):
+# Draw faces and edges (sometimes)
+def draw_faces_and_edges(transformed_vertices):
     # Calculate the average depth of each face
     face_depths = []
     for face in faces:
@@ -189,11 +191,16 @@ def draw_faces_and_edges(transformed_vertices, pos_moving_vertice):
     #    screen_x, screen_y = project(x, y, z, 400, 4)
     #    pygame.draw.circle(screen, WHITE, (screen_x, screen_y), 6)
         
-    
+
 
 def main():
     
     global vertices
+    global edges
+    global faces
+    global pivot
+    
+    
     
     clock = pygame.time.Clock()
     angle_x = 0
@@ -403,13 +410,46 @@ def main():
                 except Exception as e:
                     print(f"Error: {e}")
 
+        
+            # Mouse input
+            # Color change the clicked face closest to the camera
+            if pygame.mouse.get_pressed()[0]:
+                touching_face = []
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                for i, face in enumerate(faces):
+                    
+                    vertices_indices, color = face
+                    points = [project(*transformed_vertices[j], 400, 4) for j in vertices_indices]
+                    polygon = pygame.draw.polygon(screen, color, points)
+                    if polygon.collidepoint(mouse_x, mouse_y):
+                        touching_face += i
 
-        # Mouse input
-        """
-        if pygame.mouse.get_pressed()[0] and making and moving_vertice:
-            vertex_pos_x = pygame.mouse.get_pos()[0] - WIDTH // 2
-            vertex_pos_y = -(pygame.mouse.get_pos()[1] - HEIGHT // 2)
-        """
+                face_depths = []
+                for face in touching_face:
+                    vertices_indices, color = face
+                    avg_depth = np.mean([transformed_vertices[i][2] for i in vertices_indices])
+                    face_depths.append((avg_depth, face))
+                # Sort faces by depth (closest to furthest)
+                face_depths.sort(key=lambda x: x[0])
+                vertices_indices, color = face_depths[0][1]
+                points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
+                polygon = pygame.draw.polygon(screen, color, points)
+                
+                while True:
+                    try:
+                        new_color = (255,0,0)#eval(input("Enter the new color for the face (r, g, b): "))
+                        face_index = faces.index(face_depths[0][1])
+                        working_shape.faces[face_index] = (vertices_indices, new_color)
+                        faces = working_shape.faces[:]
+                        break
+                    except Exception as e:
+                        print(f"Error: {e}")
+                                
+                                
+
+
+            
+        
         screen.fill(BLACK)
         #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
         
@@ -459,7 +499,7 @@ def main():
             z += pivot[2] + pos_z
             transformed_vertices[vertice_to_move] = (x, y, z)
         # Draw faces
-        draw_faces_and_edges(transformed_vertices, (vertex_pos_x, vertex_pos_y, vertex_pos_z))
+        draw_faces_and_edges(transformed_vertices)
 
         # See FPS
         fps = str(int(clock.get_fps()))
