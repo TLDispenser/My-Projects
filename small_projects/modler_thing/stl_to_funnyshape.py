@@ -12,7 +12,7 @@ def parse_stl(stl_file):
 
     return vertices, faces
 
-vertices, faces= parse_stl("bulbasaur_starter_1gen_flowalistik.STL")
+vertices, faces= parse_stl(".stl")
 
 data = {
     "vertices": vertices.tolist(),
@@ -24,5 +24,8 @@ data = {
 }
 
 shape_name = input("Enter the name of the shape: ")
-with open("modles.py", "a") as file:
+with open("big_modle.py", "a") as file:
     file.write(f"\nTEMP_MOVE = {{'{shape_name}': {data}}}")
+
+    
+    #modles
