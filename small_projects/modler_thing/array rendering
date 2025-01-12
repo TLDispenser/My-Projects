@@ -4,11 +4,11 @@ import numpy as np
 
 #models
 print("Importing modles.... (Might take a while)")
-from modles import MODLES
+from model import MODLES
 print("DONEEEEEEEEEEE")
 #modles
 # Quick fix
-quick_fix = True
+quick_fix = False
 
 # Initialize Pygame
 pygame.init()
@@ -153,22 +153,16 @@ def draw_faces_and_edges(transformed_vertices):
     # Sort faces by depth (furthest to closest)
     face_depths.sort(reverse=True, key=lambda x: x[0])
     
-    # Draw faces in sorted order, only if they are not behind other faces
-    drawn_faces = []
-    for _, face in face_depths:
+    # Draw faces in sorted order
+    for depth, face in face_depths:
         vertices_indices, color = face
         points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
-        polygon = pygame.draw.polygon(screen, color, points)
         
-        # Check if the polygon is behind any already drawn face
-        is_behind = False
-        for drawn_face in drawn_faces:
-            if polygon.clip(drawn_face).width > 0 and polygon.clip(drawn_face).height > 0:
-                is_behind = True
-                break
+        # Darken the color based on depth
+        darken_factor = max(0, min(1, 1 - depth / 10))  # Adjust the divisor to control the darkening effect
+        darkened_color = tuple(int(c * darken_factor) for c in color)
         
-        if not is_behind:
-            drawn_faces.append(polygon)
+        pygame.draw.polygon(screen, darkened_color, points)
 
     if show_edges:    
         # Calculate the average depth of each edge
@@ -445,7 +439,7 @@ def main():
                     
                     while True:
                         try:
-                            new_color = (255,0,0)#eval(input("Enter the new color for the face (r, g, b): "))
+                            new_color = (0,255,0)#eval(input("Enter the new color for the face (r, g, b): "))
                             face_index = faces.index(face_depths[0][1])
                             working_shape.faces[face_index] = (vertices_indices, new_color)
                             faces = working_shape.faces[:]
