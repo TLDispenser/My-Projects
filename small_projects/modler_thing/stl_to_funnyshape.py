@@ -12,7 +12,7 @@ def parse_stl(stl_file):
 
     return vertices, faces
 
-vertices, faces= parse_stl(".stl")
+vertices, faces= parse_stl("Assembly 1.stl")
 
 data = {
     "vertices": vertices.tolist(),
@@ -24,8 +24,8 @@ data = {
 }
 
 shape_name = input("Enter the name of the shape: ")
-with open("big_modle.py", "a") as file:
-    file.write(f"\nTEMP_MOVE = {{'{shape_name}': {data}}}")
-
+with open("modele.py", "a") as file:
+    file.write(f"\nMODLES_LARGE = {{'{shape_name}': {data}}}")
+    file.write("\n")
     
     #modles
