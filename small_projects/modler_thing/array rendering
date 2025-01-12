@@ -153,11 +153,22 @@ def draw_faces_and_edges(transformed_vertices):
     # Sort faces by depth (furthest to closest)
     face_depths.sort(reverse=True, key=lambda x: x[0])
     
-    # Draw faces in sorted order
+    # Draw faces in sorted order, only if they are not behind other faces
+    drawn_faces = []
     for _, face in face_depths:
         vertices_indices, color = face
         points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
-        pygame.draw.polygon(screen, color, points)
+        polygon = pygame.draw.polygon(screen, color, points)
+        
+        # Check if the polygon is behind any already drawn face
+        is_behind = False
+        for drawn_face in drawn_faces:
+            if polygon.clip(drawn_face).width > 0 and polygon.clip(drawn_face).height > 0:
+                is_behind = True
+                break
+        
+        if not is_behind:
+            drawn_faces.append(polygon)
 
     if show_edges:    
         # Calculate the average depth of each edge
@@ -199,8 +210,6 @@ def main():
     global edges
     global faces
     global pivot
-    
-    
     
     clock = pygame.time.Clock()
     angle_x = 0
@@ -417,33 +426,32 @@ def main():
                 touching_face = []
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 for i, face in enumerate(faces):
-                    
                     vertices_indices, color = face
                     points = [project(*transformed_vertices[j], 400, 4) for j in vertices_indices]
                     polygon = pygame.draw.polygon(screen, color, points)
                     if polygon.collidepoint(mouse_x, mouse_y):
-                        touching_face += i
-
-                face_depths = []
-                for face in touching_face:
-                    vertices_indices, color = face
-                    avg_depth = np.mean([transformed_vertices[i][2] for i in vertices_indices])
-                    face_depths.append((avg_depth, face))
-                # Sort faces by depth (closest to furthest)
-                face_depths.sort(key=lambda x: x[0])
-                vertices_indices, color = face_depths[0][1]
-                points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
-                polygon = pygame.draw.polygon(screen, color, points)
-                
-                while True:
-                    try:
-                        new_color = (255,0,0)#eval(input("Enter the new color for the face (r, g, b): "))
-                        face_index = faces.index(face_depths[0][1])
-                        working_shape.faces[face_index] = (vertices_indices, new_color)
-                        faces = working_shape.faces[:]
-                        break
-                    except Exception as e:
-                        print(f"Error: {e}")
+                        touching_face.append((vertices_indices, color))
+                if touching_face:
+                    face_depths = []
+                    for face in touching_face:
+                        vertices_indices, color = face
+                        avg_depth = np.mean([transformed_vertices[i][2] for i in vertices_indices])
+                        face_depths.append((avg_depth, face))
+                    # Sort faces by depth (closest to furthest)
+                    face_depths.sort(key=lambda x: x[0])
+                    vertices_indices, color = face_depths[0][1]
+                    points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
+                    polygon = pygame.draw.polygon(screen, color, points)
+                    
+                    while True:
+                        try:
+                            new_color = (255,0,0)#eval(input("Enter the new color for the face (r, g, b): "))
+                            face_index = faces.index(face_depths[0][1])
+                            working_shape.faces[face_index] = (vertices_indices, new_color)
+                            faces = working_shape.faces[:]
+                            break
+                        except Exception as e:
+                            print(f"Error: {e}")
                                 
                                 
 
