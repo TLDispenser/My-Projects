@@ -1,0 +1,58 @@
+print('Hello world')
+print("welcome bloxfruits shop\n")
+
+def light_fruit():
+    print("light fruit 65000 14.5 million")
+    print("Moves(Unawakened): Breaks Instinct")
+    print("[Z] Light Ray Yes")
+    print("[X] Barrage of Light Yes")
+    print("[C] Reflection Kick Yes")
+    print("[V] Sky Beam Barrage")
+
+def light_fruit_awakened():
+    print("awakened If the player were using awakened Light [C] and get teleported (like during trials), the player will transform into a star (literally). The user still can use their abilities, but in the appearance of a star. Rarely, the unawakened [X] move can stun NPCs.")
+
+def full_body_haki():
+    print("full body haki 25000")
+
+def budda():
+    print("budda 1,200,000")
+
+def awakened_budda():
+    print("budda 1,200,000 awakened 14.5million")
+    print("When awakening Buddha, awaken your moves in this order: Z (Shift), F (Heavenly Impact), X (Light of Annihilation), C (Twilight of the Gods), V (Retribution Dash)")
+    print("Once you awaken at least one Buddha Fruit move, you'll get the Colossal God")
+
+def dark_fruit():
+    print("dark fruit 50000 awakened 500000")
+    print("Move Damage Cooldown")
+    print("[Z] Dark Rocks 3402 ~7.5 second cooldown")
+    print("[X] Black Spiral - Tap 2506 ~12.5 second cooldown")
+    print("[X] Black Spiral - Held 3581")
+    print("[C] Black Hole")
+
+def awakened_dark_fruit():
+    print("awakened 500000")
+    print("Move Damage Cooldown")
+    print("[Z] Dark Rocks 3402 ~7.5 second cooldown")
+    print("[X] Black Spiral - Tap 2506 ~12.5 second cooldown")
+    print("[X] Black Spiral - Held 3581")
+    print("[C] Black Hole")
+
+def portal_fruit():
+    print("portal fruit 205 million")
+    print("Portal Dash ( Z ) Mastery cost: 1 Mastery. Damage: 3104. ...")
+    print("Parallel Escape ( X ) Mastery cost: 50 Mastery. Damage: 2760. ...")
+    print("World Warp ( C ) Mastery cost: 200 Mastery. Damage: n/a. ...")
+    print("Dimensional Rift ( V ) Mastery cost: 300 Mastery. Damage: 7520. ...")
+    print("Quantum Leap ( F ) Mastery cost: 100 Mastery. Damage: 1724.")
+
+def rubber_fruit():
+    print("rubber fuit 750,000")
+    print("Immunity to Rumble and Electric fighting style.")
+    print("Immunity to gun attacks.")
+    print("High damage output.")
+    print("Decent range.")
+    print("All moves are AoE.")
+    print("Great for bosses and raids, having high damage and stuns with decent range.")
+    print("Speed, damage, knockback, and range all increase when in Transformation.")
