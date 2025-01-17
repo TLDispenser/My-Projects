@@ -1,5 +1,6 @@
 print('Hello world')
 print("welcome bloxfruits shop\n")
+total = 0
 
 def light_fruit():
     print("light fruit 65000 14.5 million")
@@ -8,20 +9,40 @@ def light_fruit():
     print("[X] Barrage of Light Yes")
     print("[C] Reflection Kick Yes")
     print("[V] Sky Beam Barrage")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 65000 * how_many
+    return 65000 * how_many
 
 def light_fruit_awakened():
     print("awakened If the player were using awakened Light [C] and get teleported (like during trials), the player will transform into a star (literally). The user still can use their abilities, but in the appearance of a star. Rarely, the unawakened [X] move can stun NPCs.")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 14500000 * how_many
+    return 14500000 * how_many
 
 def full_body_haki():
     print("full body haki 25000")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 25000 * how_many
+    return 25000 * how_many
 
 def budda():
     print("budda 1,200,000")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 1200000 * how_many
+    return 1200000 * how_many
 
 def awakened_budda():
-    print("budda 1,200,000 awakened 14.5million")
-    print("When awakening Buddha, awaken your moves in this order: Z (Shift), F (Heavenly Impact), X (Light of Annihilation), C (Twilight of the Gods), V (Retribution Dash)")
+    print("budda 1,200,000 awakened 14.5 million")
+    print("When awakening Buddha, awaken your moves in this order: Z (Shift), F (Heavenly Impact), X (Light of Annihilation),  (Twilight of the Gods), V (Retribution Dash)")
     print("Once you awaken at least one Buddha Fruit move, you'll get the Colossal God")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 14500000 * how_many
+    return 14500000 * how_many
 
 def dark_fruit():
     print("dark fruit 50000 awakened 500000")
@@ -30,6 +51,10 @@ def dark_fruit():
     print("[X] Black Spiral - Tap 2506 ~12.5 second cooldown")
     print("[X] Black Spiral - Held 3581")
     print("[C] Black Hole")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 50000 * how_many
+    return 50000 * how_many
 
 def awakened_dark_fruit():
     print("awakened 500000")
@@ -38,6 +63,10 @@ def awakened_dark_fruit():
     print("[X] Black Spiral - Tap 2506 ~12.5 second cooldown")
     print("[X] Black Spiral - Held 3581")
     print("[C] Black Hole")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 500000 * how_many
+    return 500000 * how_many
 
 def portal_fruit():
     print("portal fruit 205 million")
@@ -46,6 +75,10 @@ def portal_fruit():
     print("World Warp ( C ) Mastery cost: 200 Mastery. Damage: n/a. ...")
     print("Dimensional Rift ( V ) Mastery cost: 300 Mastery. Damage: 7520. ...")
     print("Quantum Leap ( F ) Mastery cost: 100 Mastery. Damage: 1724.")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 205000000 * how_many
+    return 205000000 * how_many
 
 def rubber_fruit():
     print("rubber fuit 750,000")
@@ -56,3 +89,46 @@ def rubber_fruit():
     print("All moves are AoE.")
     print("Great for bosses and raids, having high damage and stuns with decent range.")
     print("Speed, damage, knockback, and range all increase when in Transformation.")
+    how_many = int(input("how many would you like?"))
+    global total
+    total += 750000 * how_many
+    return 750000 * how_many
+
+def shop():
+    while True:
+        print("what do you need")
+        print("we have: light_fruit, awakened light fruit, full body haki, budda, awakened budda, dark fruit, awakened dark fruit, portal fruit, rubber fruit")
+        print('Type "leave_then_leave_" to leave')
+        rock = input()
+        if rock == "light_fruit":
+            boulder = light_fruit()
+            print("the price is " + str(boulder))
+        elif rock == "light fruit awakened":
+            boulder = light_fruit_awakened()
+            print("the price is " + str(boulder))
+        elif rock == "full body haki":
+            boulder = full_body_haki()
+            print("the price is " + str(boulder))
+        elif rock == "budda":
+            boulder = budda()
+            print("the price is " + str(boulder))
+        elif rock == "awakened budda":
+            boulder = awakened_budda()
+            print("the price is " + str(boulder))
+        elif rock == "dark fruit":
+            boulder = dark_fruit()
+            print("the price is " + str(boulder))
+        elif rock == "awakened dark fruit":
+            boulder = awakened_dark_fruit()
+            print("the price is " + str(boulder))
+        elif rock == "portal fruit":
+            boulder = portal_fruit()
+            print("the price is " + str(boulder))
+        elif rock == "rubber fruit":
+            boulder = rubber_fruit()
+            print("the price is " + str(boulder))
+        elif rock == "leave_then_leave_":
+            print("total: " + str(total))
+            break
+
+shop()
