@@ -64,7 +64,7 @@ class Object:
             else:
                 print("Model not found.")
 
-DICT = {
+"""DICT = {
     'square': {
         'object': Object(),
         'hp': 100,
@@ -80,7 +80,7 @@ DICT = {
         'hp': 120,
         'attack': 5
     }
-}
+}"""
 # Initialize the shape
 working_shape = Object()
 vertices = working_shape.vertices
@@ -178,9 +178,6 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if making:
-                        if input("Do you want to save your shape? (y/n): ") == "y":
-                            working_shape.export_shape()
                     running = False
                 
         # Continuous input
@@ -213,84 +210,6 @@ def main():
                 pos_y += 0.1
             if keys[pygame.K_c]:
                 pos_y -= 0.1
-    
-        # Manual shape slection
-        if making:
-            if keys[pygame.K_m]:
-                try:
-                    if input("Do you want to add a new face? (y/n): ") == "y":
-                        print("Enter the vertices of the face you want to add: ")
-                        while True:
-                            print("Format for color: (r, g, b) up to 255")
-                            temp_color = eval(input())
-                            screen.fill(temp_color)
-                            pygame.display.flip()
-                            this_color = input("Is this the color you want? (y/n): (see screen for color)")
-                            if this_color == "y":
-                                break
-                        temp_vertices = ""
-                        for i in range(len(vertices)):
-                            temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
-                        print("Here are the vertices you have: \n" + str(temp_vertices))
-                        print("Format for vertex: (vertex1, vertex2, vertex3, ..., vertexn)")
-                        working_shape.add_new_face(eval(input()), temp_color)
-                except Exception as e:
-                    print(f"Error: {e}")
-            if keys[pygame.K_n]:
-                try:
-                    if input("Do you want to add a new edge? (y/n): ") == "y":
-                        print("Enter the vertice # of the edge you want to add: ")
-                        temp_vertices = ""
-                        for i in range(len(vertices)):
-                            temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
-                        print("Here are the vertices you have: \n" + str(temp_vertices))
-                        print("Format: (vertex1, vertex2)")
-                        working_shape.add_new_edge(*eval(input()))
-                except Exception as e:
-                    print(f"Error: {e}")
-            if keys[pygame.K_b] and not moving_vertice:
-                try:
-                    if input("Do you want to add a new vertex? (y/n): ") == "y":
-                        print("Enter the vertex you want to add: ")
-                        print("Format: (x, y, z)")
-                        working_shape.add_new_vertex(*eval(input()))
-                except Exception as e:
-                    print(f"Error: {e}")
-            if keys[pygame.K_COMMA]:
-                try:
-                    print("Here are the vertices you have: \n" + str(vertices))
-                    print("Enter the pivot point of the shape: ")
-                    print("Format: (x, y, z)")
-                    working_shape.set_pivot(*eval(input()))
-                except Exception as e:
-                    print(f"Error: {e}")
-            if keys[pygame.K_PERIOD]:
-                try:
-                    if input("Do you want to remove something? (y/n): ") == "y":
-                        what_to_remove = input("What do you want to remove? (vertex (v), edge (e), face (f)): ")
-                        if what_to_remove == "v" or what_to_remove == "vertex" and not moving_vertice:
-                            temp_vertices = ""
-                            for i in range(len(vertices)):
-                                temp_vertices += (str(i) + ": " + str(vertices[i]) + " ")
-                            print("Enter the index of the vertex you want to remove: ")
-                            print("Here are the vertices you have: \n" + str(temp_vertices))
-                            working_shape.remove_previous_vertex(int(input()))
-                        elif what_to_remove == "e" or what_to_remove == "edge":
-                            temp_edges = ""
-                            for i in range(len(edges)):
-                                temp_edges += (str(i) + ": " + str(edges[i]) + " ")
-                            print("Enter the index of the edge you want to remove: ")
-                            print("Here are the edges you have: \n" + str(temp_edges))
-                            working_shape.remove_previous_edge(int(input()))
-                        elif what_to_remove == "f" or what_to_remove == "face":
-                            temp_faces = ""
-                            for i in range(len(faces)):
-                                temp_faces += (str(i) + ": " + str(faces[i]) + " ")
-                            print("Enter the index of the face you want to remove: ")
-                            print("Here are the faces you have: \n" + str(temp_faces))
-                            working_shape.remove_previous_face(int(input()))
-                except Exception as e:
-                    print(f"Error: {e}")
 
         
             # Mouse input
