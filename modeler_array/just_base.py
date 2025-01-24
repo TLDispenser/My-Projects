@@ -1,3 +1,6 @@
+# MAKE OS THE PIVIOT POINT MOVES TOO
+
+
 import pygame
 import math
 import numpy as np
@@ -7,15 +10,13 @@ print("Importing modles.... (Might take a while)")
 from model import MODLES
 print("DONEEEEEEEEEEE")
 #modles
-# Quick fix
-quick_fix = False
 
 # Initialize Pygame
 pygame.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("3D Rendering Engine")
 
 # Colors
@@ -26,25 +27,26 @@ if invert_colors:
 else:
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
-
+# Darkning effect
+DARKENING_FACTOR = 50
 
 # Show edges?
 show_edges = False
 
 class Object:
     # Initialize vertices, edges, and faces
-    def __init__(self):
+    def __init__(self, shape):
         self.vertices = []
         self.edges = []
         self.faces = []
         self.pivot = (0, 0, 0)
-        if quick_fix == False:
+        if shape is None:
             self.import_shape_from_file()
         else:
-            self.vertices = MODLES['square']["vertices"]
-            self.edges = MODLES['square']["edges"]
-            self.faces = MODLES['square']["faces"]
-            self.pivot = MODLES['square']["pivot"]
+            self.vertices = MODLES[shape]["vertices"]
+            self.edges = MODLES[shape]["edges"]
+            self.faces = MODLES[shape]["faces"]
+            self.pivot = MODLES[shape]["pivot"]
         
             
     
@@ -64,25 +66,25 @@ class Object:
             else:
                 print("Model not found.")
 
-"""DICT = {
+DICT = {
     'square': {
-        'object': Object(),
+        'object': Object('square'),
         'hp': 100,
         'attack': 10
     },
-    'triangle': {
-        'object': Object(),
+    'Chat_GPT_dog': {
+        'object': Object('Chat_GPT_dog'),
         'hp': 80,
         'attack': 15
     },
-    'circle': {
-        'object': Object(),
+    'octahedron': {
+        'object': Object('octahedron'),
         'hp': 120,
         'attack': 5
     }
-}"""
+}
 # Initialize the shape
-working_shape = Object()
+working_shape = Object(None)
 vertices = working_shape.vertices
 edges = working_shape.edges
 faces = working_shape.faces
@@ -113,7 +115,7 @@ def draw_faces_and_edges(transformed_vertices):
         points = [project(*transformed_vertices[i], 400, 4) for i in vertices_indices]
         
         # Darken the color based on depth
-        darken_factor = max(0, min(1, 1 - depth / 10))  # Adjust the divisor to control the darkening effect
+        darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
         
         pygame.draw.polygon(screen, darkened_color, points)
@@ -144,11 +146,7 @@ def draw_faces_and_edges(transformed_vertices):
             vector_font = pygame.font.SysFont('Arial', 16)
             vector_number = vector_font.render(str(vertex), True, (255, 0, 0))  # Red color for visibility
             screen.blit(vector_number, (screen_x - 5, screen_y - 5))
-    # Draw a small circle at the vertex being moved
-    #if moving_vertice:
-    #    x, y, z = pos_moving_vertice
-    #    screen_x, screen_y = project(x, y, z, 400, 4)
-    #    pygame.draw.circle(screen, WHITE, (screen_x, screen_y), 6)
+
         
 
 
@@ -176,10 +174,16 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.VIDEORESIZE:
+                WIDTH, HEIGHT = event.size
+                global screen
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                
+                if event.key == pygame.K_m:
+                    global show_edges
+                    show_edges = not show_edges
         # Continuous input
         keys = pygame.key.get_pressed()
         if can_rotate:
