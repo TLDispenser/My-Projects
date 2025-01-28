@@ -1,6 +1,3 @@
-# MAKE OS THE PIVIOT POINT MOVES TOO
-
-
 import pygame
 import math
 import numpy as np
@@ -8,7 +5,7 @@ import numpy as np
 #models
 print("Importing modles.... (Might take a while)")
 from model import MODLES
-print("DONEEEEEEEEEEE")
+print("DONE!")
 #modles
 
 # Initialize Pygame
@@ -70,7 +67,7 @@ DICT = {
     'square': {
         'object': Object('square'),
         'hp': 100,
-        'attack': 10
+        'speed': 10
     },
     'Chat_GPT_dog': {
         'object': Object('Chat_GPT_dog'),
@@ -175,6 +172,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.VIDEORESIZE:
+                global WIDTH, HEIGHT
                 WIDTH, HEIGHT = event.size
                 global screen
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
@@ -198,22 +196,23 @@ def main():
             if keys[pygame.K_e]:
                 angle_z -= 0.1
             if keys[pygame.K_q]:
-                angle_z += 0.1 
-                
-                
+                angle_z += 0.1  
+        speed = 0.1
+        if keys[pygame.K_LSHIFT]:
+            speed = 0.5    
         if can_move:
             if keys[pygame.K_s]:
-                pos_z -= 0.1
+                pos_z -= speed
             if keys[pygame.K_w]:
-                pos_z += 0.1
+                pos_z += speed
             if keys[pygame.K_a]:
-                pos_x -= 0.1
+                pos_x -= speed
             if keys[pygame.K_d]:
-                pos_x += 0.1
+                pos_x += speed
             if keys[pygame.K_SPACE]:
-                pos_y += 0.1
+                pos_y += speed
             if keys[pygame.K_c]:
-                pos_y -= 0.1
+                pos_y -= speed
 
         
             # Mouse input
@@ -249,13 +248,11 @@ def main():
                         except Exception as e:
                             print(f"Error: {e}")
                                 
-                                
-
-
             
         
         screen.fill(BLACK)
-        #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        
         
         # Rotate 
         cos_angle_x = math.cos(angle_x)
@@ -281,7 +278,14 @@ def main():
             x += pivot[0] + pos_x
             y += pivot[1] + pos_y
             z += pivot[2] + pos_z
+            
             transformed_vertices.append((x, y, z))
+        
+        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+        # Move the pivot
+        if prevous_x != pos_x or prevous_y != pos_y or prevous_z != pos_z:
+            pivot = (pivot[0] + pos_x, pivot[1] + pos_y, pivot[2] + pos_z)
+        
         
         draw_faces_and_edges(transformed_vertices)
 
