@@ -182,6 +182,8 @@ def main():
                 if event.key == pygame.K_m:
                     global show_edges
                     show_edges = not show_edges
+                #if event.key == pygame.K_r:
+                    
         # Continuous input
         keys = pygame.key.get_pressed()
         if can_rotate:
