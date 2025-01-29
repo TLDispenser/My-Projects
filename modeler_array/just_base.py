@@ -27,61 +27,42 @@ else:
 # Darkning effect
 DARKENING_FACTOR = 50
 
-# Show edges?
-show_edges = False
 
 class Object:
     # Initialize vertices, edges, and faces
     def __init__(self, shape):
-        self.vertices = []
-        self.edges = []
-        self.faces = []
-        self.pivot = (0, 0, 0)
-        if shape is None:
-            self.import_shape_from_file()
-        else:
-            self.vertices = MODLES[shape]["vertices"]
-            self.edges = MODLES[shape]["edges"]
-            self.faces = MODLES[shape]["faces"]
-            self.pivot = MODLES[shape]["pivot"]
-        
-            
+        self.vertices = MODLES[shape]["vertices"]
+        self.edges = MODLES[shape]["edges"]
+        self.faces = MODLES[shape]["faces"]
+        self.pivot = MODLES[shape]["pivot"]
     
-    def import_shape_from_file(self):
-        
-        while True:
-            print("Available shapes:")
-            for key in MODLES.keys():
-                print(key)
-            input_model = input("Enter the model you want to import: ")
-            if input_model in MODLES:
-                self.vertices = MODLES[input_model]["vertices"]
-                self.edges = MODLES[input_model]["edges"]
-                self.faces = MODLES[input_model]["faces"]
-                self.pivot = MODLES[input_model]["pivot"]
-                break
-            else:
-                print("Model not found.")
+    def __str__(self):
+        return f"Object({self.vertices}, {self.edges}, {self.faces}, {self.pivot})"
+    
+    def __repr__(self):
+        return f"Object({self.vertices}, {self.edges}, {self.faces}, {self.pivot})"
 
+
+# Dictionary of objects
 DICT = {
     'square': {
-        'object': Object('square'),
+        'object_class': Object('square'),
         'hp': 100,
         'speed': 10
     },
     'Chat_GPT_dog': {
-        'object': Object('Chat_GPT_dog'),
+        'object_class': Object('Chat_GPT_dog'),
         'hp': 80,
         'attack': 15
     },
     'octahedron': {
-        'object': Object('octahedron'),
+        'object_class': Object('octahedron'),
         'hp': 120,
         'attack': 5
     }
 }
 # Initialize the shape
-working_shape = Object(None)
+working_shape = DICT['square']['object_class']
 vertices = working_shape.vertices
 edges = working_shape.edges
 faces = working_shape.faces
@@ -94,8 +75,8 @@ def project(x, y, z, scale, distance):
     y = -y * factor + HEIGHT // 2
     return int(x), int(y)
 
-# Draw faces and edges (sometimes)
-def draw_faces_and_edges(transformed_vertices):
+# Draw faces
+def draw_faces(transformed_vertices):
     # Calculate the average depth of each face
     face_depths = []
     for face in faces:
@@ -116,45 +97,14 @@ def draw_faces_and_edges(transformed_vertices):
         darkened_color = tuple(int(c * darken_factor) for c in color)
         
         pygame.draw.polygon(screen, darkened_color, points)
-
-    if show_edges:    
-        # Calculate the average depth of each edge
-        edge_depths = []
-        for edge in edges:
-            avg_depth = np.mean([transformed_vertices[i][2] for i in edge])
-            edge_depths.append((avg_depth, edge))
-        
-        # Sort edges by depth (furthest to closest)
-        edge_depths.sort(reverse=True, key=lambda x: x[0])
-
-        # Draw edges in sorted order 
-        for _, edge in edge_depths:
-            points = []
-            for vertex in edge:
-                x, y, z = transformed_vertices[vertex]
-                points.append(project(x, y, z, 400, 4))   
-            pygame.draw.line(screen, WHITE, points[0], points[1], 1)
-        # Draw a small circle at each vertex
-        for vertex in range(len(vertices)):
-            x, y, z = transformed_vertices[vertex]
-            screen_x, screen_y = project(x, y, z, 400, 4)
-            pygame.draw.circle(screen, WHITE, (screen_x, screen_y), 6)
-            # Draw the index of the vertice
-            vector_font = pygame.font.SysFont('Arial', 16)
-            vector_number = vector_font.render(str(vertex), True, (255, 0, 0))  # Red color for visibility
-            screen.blit(vector_number, (screen_x - 5, screen_y - 5))
-
         
 
 
 def main():
-    
-    global vertices
-    global edges
-    global faces
-    global pivot
-    
     clock = pygame.time.Clock()
+    
+    global pivot, faces, vertices
+    
     angle_x = 0
     angle_y = 0
     angle_z = 0
@@ -179,42 +129,53 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                if event.key == pygame.K_m:
-                    global show_edges
-                    show_edges = not show_edges
-                #if event.key == pygame.K_r:
+                if event.key == pygame.K_r:
+                    while True:
+                        for objects in DICT:
+                            print(objects)
+                        global working_shape
+                        working_shape = input("Enter the object you want to move: ")
+                        if working_shape in DICT:
+                            vertices = DICT[working_shape]['object_class'].vertices
+                            edges = DICT[working_shape]['object_class'].edges
+                            faces = DICT[working_shape]['object_class'].faces
+                            pivot = DICT[working_shape]['object_class'].pivot
+                            break
+                        else:
+                            print("Invalid object")          
                     
         # Continuous input
         keys = pygame.key.get_pressed()
         if can_rotate:
+            rotation_speed = 0.05
             if keys[pygame.K_LEFT]:
-                angle_y -= 0.1
+                angle_y -= rotation_speed
             if keys[pygame.K_RIGHT]:
-                angle_y += 0.1
+                angle_y += rotation_speed
             if keys[pygame.K_UP]:
-                angle_x -= 0.1
+                angle_x -= rotation_speed
             if keys[pygame.K_DOWN]:
-                angle_x += 0.1
+                angle_x += rotation_speed
             if keys[pygame.K_e]:
-                angle_z -= 0.1
+                angle_z -= rotation_speed
             if keys[pygame.K_q]:
-                angle_z += 0.1  
-        speed = 0.1
+                angle_z += rotation_speed  
+        move_speed = 0.1
         if keys[pygame.K_LSHIFT]:
-            speed = 0.5    
+            move_speed = 0.5    
         if can_move:
             if keys[pygame.K_s]:
-                pos_z -= speed
+                pos_z -= move_speed
             if keys[pygame.K_w]:
-                pos_z += speed
+                pos_z += move_speed
             if keys[pygame.K_a]:
-                pos_x -= speed
+                pos_x -= move_speed
             if keys[pygame.K_d]:
-                pos_x += speed
+                pos_x += move_speed
             if keys[pygame.K_SPACE]:
-                pos_y += speed
+                pos_y += move_speed
             if keys[pygame.K_c]:
-                pos_y -= speed
+                pos_y -= move_speed
 
         
             # Mouse input
@@ -255,42 +216,45 @@ def main():
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
         
-        
-        # Rotate 
-        cos_angle_x = math.cos(angle_x)
-        sin_angle_x = math.sin(angle_x)
-        cos_angle_y = math.cos(angle_y)
-        sin_angle_y = math.sin(angle_y)
-        cos_angle_z = math.cos(angle_z)
-        sin_angle_z = math.sin(angle_z)
+        for obj in DICT.values():
+            if obj['object_class'] == working_shape:
+                # Rotate 
+                cos_angle_x = math.cos(angle_x)
+                sin_angle_x = math.sin(angle_x)
+                cos_angle_y = math.cos(angle_y)
+                sin_angle_y = math.sin(angle_y)
+                cos_angle_z = math.cos(angle_z)
+                sin_angle_z = math.sin(angle_z)
 
-        transformed_vertices = []
-        for x, y, z in vertices:
-            # Translate to pivot
-            x -= pivot[0]
-            y -= pivot[1]
-            z -= pivot[2]
-            # Rotate around x-axis
-            y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
-            # Rotate around y-axis
-            x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
-            # Rotate around z-axis
-            x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
-            # Translate back from pivot
-            x += pivot[0] + pos_x
-            y += pivot[1] + pos_y
-            z += pivot[2] + pos_z
-            
-            transformed_vertices.append((x, y, z))
+                transformed_vertices = []
+                for x, y, z in vertices:
+                    # Translate to pivot
+                    x -= pivot[0]
+                    y -= pivot[1]
+                    z -= pivot[2]
+                    # Rotate around x-axis
+                    y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
+                    # Rotate around y-axis
+                    x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
+                    # Rotate around z-axis
+                    x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
+                    # Translate back from pivot
+                    x += pivot[0] + pos_x
+                    y += pivot[1] + pos_y
+                    z += pivot[2] + pos_z
+                    
+                    transformed_vertices.append((x, y, z))
+                
+                prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+                # Move the pivot
+                if prevous_x != pos_x or prevous_y != pos_y or prevous_z != pos_z:
+                    pivot = (pivot[0] + pos_x, pivot[1] + pos_y, pivot[2] + pos_z)
+                
+                
+                draw_faces(transformed_vertices) 
+            else:
+                draw_faces(vertices)
         
-        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
-        # Move the pivot
-        if prevous_x != pos_x or prevous_y != pos_y or prevous_z != pos_z:
-            pivot = (pivot[0] + pos_x, pivot[1] + pos_y, pivot[2] + pos_z)
-        
-        
-        draw_faces_and_edges(transformed_vertices)
-
         # See FPS
         fps = str(int(clock.get_fps()))
         font = pygame.font.SysFont('Arial', 30)
