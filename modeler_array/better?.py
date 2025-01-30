@@ -52,27 +52,33 @@ class Object:
         self.bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
         return self.bounding_box
 
+    def update_object(self, vertices, edges, faces, pivot):
+        self.vertices = vertices
+        self.edges = edges
+        self.faces = faces
+        self.pivot = pivot
 
 # Dictionary of objects
 DICT = {
     'square': {
         'object_class': Object('square'),
+        'move': True,
         'hp': 100,
         'speed': 10
     },
     'Chat_GPT_dog': {
         'object_class': Object('Chat_GPT_dog'),
+        'move': False,
         'hp': 80,
         'attack': 15
     },
     'octahedron': {
         'object_class': Object('octahedron'),
+        'move': False,
         'hp': 120,
         'attack': 5
     }
 }
-# Initialize the shape
-working_shape = 'square'
 
 
 def project(x, y, z, scale, distance):
@@ -94,7 +100,7 @@ def draw_faces(sorted_faces):
         pygame.draw.polygon(screen, darkened_color, points)
 
 
-def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, is_working_shape, apply_rotation):
+def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z):
     # Rotate
     cos_angle_x = math.cos(angle_x)
     sin_angle_x = math.sin(angle_x)
@@ -110,22 +116,44 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
         y -= obj_class.pivot[1]
         z -= obj_class.pivot[2]
         
-        if apply_rotation:
-            # Rotate around x-axis
-            y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
-            # Rotate around y-axis
-            x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
-            # Rotate around z-axis
-            x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
+        # Rotate around x-axis
+        y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
+        # Rotate around y-axis
+        x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
+        # Rotate around z-axis
+        x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
+        
+        # Apply position offsets
+        x += obj_class.pivot[0] + pos_x
+        y += obj_class.pivot[1] + pos_y
+        z += obj_class.pivot[2] + pos_z
+        
+        
+        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+        # Move the pivot
+        if prevous_x != pos_x or prevous_y != pos_y or prevous_z != pos_z:
+            pivot = (pivot[0] + pos_x, pivot[1] + pos_y, pivot[2] + pos_z)
+        else:
+            pivot = obj_class.pivot
             
-            # Apply position offsets
-            x += obj_class.pivot[0] + pos_x
-            y += obj_class.pivot[1] + pos_y
-            z += obj_class.pivot[2] + pos_z
-
         transformed_vertices.append((x, y, z))
+    
+    obj_class.update_object(transformed_vertices, obj_class.edges, obj_class.faces, pivot)
+    
     return transformed_vertices
 
+def sort_high_to_low(all_faces, transformed_vertices):
+    sorted_faces = []
+    for face in all_faces:
+        vertices_indices, color = face
+        try:
+            avg_depth = np.mean([transformed_vertices[i][2] for i in vertices_indices])
+        except IndexError:
+            print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
+            continue
+        sorted_faces.append((avg_depth, face, transformed_vertices))
+    sorted_faces.sort(reverse=True, key=lambda x: x[0])
+    return sorted_faces
 
 def check_collision(obj1, obj2):
     (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
@@ -138,8 +166,6 @@ def check_collision(obj1, obj2):
 
 def main():
     clock = pygame.time.Clock()
-
-    global working_shape
 
     running = True
     can_move = True
@@ -167,15 +193,7 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 if event.key == pygame.K_r:
-                    while True:
-                        for objects in DICT:
-                            print(objects)
-                        working_shape = input("Enter the object you want to move: ")
-                        if working_shape in DICT:
-                            pos_x, pos_y, pos_z = 0, 0, 0  # Reset position when switching objects
-                            break
-                        else:
-                            print("Invalid object")
+                    print("Invalid object")
                 if event.key == pygame.K_t:
                     # DEBUG: Prints every object's bounding box
                     for obj_name, obj in DICT.items():
@@ -219,31 +237,22 @@ def main():
 
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+ 
 
+        
+        transformed_vertices = []
         all_faces = []
         for obj_name, obj in DICT.items():
             obj_class = obj['object_class']
-            is_working_shape = (obj_name == working_shape)
-            apply_rotation = is_working_shape
-            transformed_vertices = calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, is_working_shape, apply_rotation)
-            for face in obj_class.faces:
-                    vertices_indices = face[0]
-                    avg_depth = np.mean([transformed_vertices[i][2] for i in vertices_indices])
-                    all_faces.append((avg_depth, face, transformed_vertices))
-                    # Update the object's data only if it's the working shape
-                    if is_working_shape:
-                        obj_class.vertices = transformed_vertices
-                        #obj_class.edges = obj_class.edges
-                        #obj_class.faces = obj_class.faces
-                        # Update the pivot
-                        #pivot_update = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
-                        #obj_class.pivot = pivot_update
-
-        # Sort all faces by depth (furthest to closest)
-        all_faces.sort(reverse=True, key=lambda x: x[0])
-
+            if obj['move']:
+                transformed_vertices = calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z)
+            all_faces += obj_class.faces
+        
+        # Sort faces by depth (furthest to closest)
+        sorted_faces = sort_high_to_low(all_faces, transformed_vertices)
+        
         # Draw all faces
-        draw_faces(all_faces)
+        draw_faces(sorted_faces)
 
         # Check for collisions
         for obj_name1, obj1 in DICT.items():
