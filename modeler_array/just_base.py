@@ -63,17 +63,20 @@ DICT = {
     'square': {
         'object_class': Object('square'),
         'render': False,
-        'move': False
+        'move': False,
+        'collision': False
     },
-    'Chat_GPT_dog': {
+    'bulbasaur': {
         'object_class': Object('bulbasaur'),
         'render': True,
-        'move': True
+        'move': True,
+        'collision': True
     },
     'octahedron': {
         'object_class': Object('octahedron'),
         'render': True,
-        'move': False
+        'move': False,
+        'collision': True
     }
 }
 
@@ -125,12 +128,8 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
         y += obj_class.pivot[1] + pos_y
         z += obj_class.pivot[2] + pos_z
         
-        
-        # Move the pivot
-        if prevous_x != pos_x or prevous_y != pos_y or prevous_z != pos_z:
-            pivot = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
-        else:
-            pivot = obj_class.pivot
+        # Update pivot`s position`
+        pivot = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
             
         transformed_vertices.append((x, y, z))
     
@@ -206,13 +205,18 @@ def main():
                     print("Collision detection is now", not collisions_on)
                     collisions_on = not collisions_on
                 if event.key == pygame.K_t:
-                    # DEBUG: Prints every object's bounding box
+                    # DEBUG: Prints every object's bounding box vand what its hitting and where it is hitting 
+                    checked_pairs = set()
                     for obj_name, obj in DICT.items():
                         print(f"{obj_name}: {obj['object_class'].get_bounding_box()}")
-                    input("Press Enter to continue...")
-                    
-        # Previous position
-        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+                        for obj_name2, obj2 in DICT.items():
+                            if obj_name != obj_name2 and (obj_name2, obj_name) not in checked_pairs:
+                                if obj['collision'] and obj2['collision']:
+                                    if check_collision(obj['object_class'], obj2['object_class']):
+                                        print(f"Colliding with:" )
+                                        print(f"    {obj_name2}")
+                                checked_pairs.add((obj_name, obj_name2))
+
                 
         # Continuous input
         keys = pygame.key.get_pressed()
@@ -262,19 +266,26 @@ def main():
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
  
-        
-        # NOT WORKING !!!!!!!!!!!!!!!!
+        # Previous position
+        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+
         # Check for collisions
         if collisions_on:
             for obj_name1, obj1 in DICT.items():
                 for obj_name2, obj2 in DICT.items():
-                    if obj1['render'] and obj2['render']:
+                    if obj1['collision'] and obj2['collision']:
                         if obj_name1 != obj_name2:
                             if check_collision(obj1['object_class'], obj2['object_class']):
-                                #print(f"Collision detected between {obj_name1} and {obj_name2}")
-                                pos_x, pos_y, pos_z = prevous_x, prevous_y, prevous_z
- 
-        
+                                # Reset position of the colliding objects
+                                obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
+                                obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
+                                # Reset position of moving objects
+                                if obj1['move'] or obj2['move']:
+                                    #pos_x, pos_y, pos_z = prevous_x, prevous_y, prevous_z
+                                    pos_x, pos_y, pos_z = prevous_x - (-2 * pos_x), prevous_y - (-2 * pos_y), prevous_z - (-2 * pos_z)
+
+                                
+                                
         all_vertices = []
         all_faces = []
         vertex_offset = 0
