@@ -62,13 +62,13 @@ class Object:
 DICT = {
     'square': {
         'object_class': Object('square'),
-        'render': True,
-        'move': True
-    },
-    'Chat_GPT_dog': {
-        'object_class': Object('Chat_GPT_dog'),
         'render': False,
         'move': False
+    },
+    'Chat_GPT_dog': {
+        'object_class': Object('bulbasaur'),
+        'render': True,
+        'move': True
     },
     'octahedron': {
         'object_class': Object('octahedron'),
@@ -138,19 +138,27 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
     
     return transformed_vertices
 
-def sort_high_to_low(all_vertices, all_faces):
+
+
+
+def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
     sorted_faces = []
     for face in all_faces:
         vertices_indices, color = face
         try:
-            avg_depth = np.mean([all_vertices[i][2] for i in vertices_indices])
+            # Calculate the centroid of the face
+            centroid = np.mean([all_vertices[i] for i in vertices_indices], axis=0)
+            # Calculate the vector from the camera to the centroid
+            vector_to_centroid = centroid - camera_position
+            # Calculate the dot product with the camera's front vector
+            dot_product = np.dot(vector_to_centroid, camera_front)
         except IndexError:
             print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
             continue
-        sorted_faces.append((avg_depth, face))
+        sorted_faces.append((dot_product, face))
     sorted_faces.sort(reverse=True, key=lambda x: x[0])
-    
     return sorted_faces
+
 
 def check_collision(obj1, obj2):
     (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
@@ -163,11 +171,16 @@ def check_collision(obj1, obj2):
 
 def main():
     clock = pygame.time.Clock()
-
+    
+    collisions_on = True
     running = True
     can_move = True
     can_rotate = True
 
+    # Define the camera's position and front vector
+    camera_position = np.array([0, 0, -5])
+    camera_front = np.array([0, 0, 1])
+    
     while running:
         # Reset values to prevent continuous movement
         angle_x = 0
@@ -190,7 +203,8 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 if event.key == pygame.K_r:
-                    print("Invalid object")
+                    print("Collision detection is now", not collisions_on)
+                    collisions_on = not collisions_on
                 if event.key == pygame.K_t:
                     # DEBUG: Prints every object's bounding box
                     for obj_name, obj in DICT.items():
@@ -204,13 +218,13 @@ def main():
         keys = pygame.key.get_pressed()
         if can_rotate:
             rotation_speed = 0.05
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] and not keys[pygame.K_LCTRL]:
                 angle_y -= rotation_speed
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] and not keys[pygame.K_LCTRL]:
                 angle_y += rotation_speed
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] and not keys[pygame.K_LCTRL]:
                 angle_x -= rotation_speed
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN] and not keys[pygame.K_LCTRL]:
                 angle_x += rotation_speed
             if keys[pygame.K_e]:
                 angle_z -= rotation_speed
@@ -233,10 +247,33 @@ def main():
             if keys[pygame.K_c]:
                 pos_y -= move_speed
 
+        # Camera movement
+        camera_move_speed = 0.1
+        if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_LEFT]:
+                camera_position[0] -= camera_move_speed
+            if keys[pygame.K_RIGHT]:
+                camera_position[0] += camera_move_speed
+            if keys[pygame.K_UP]:
+                camera_position[1] += camera_move_speed
+            if keys[pygame.K_DOWN]:
+                camera_position[1] -= camera_move_speed
+
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
  
-
+        
+        # NOT WORKING !!!!!!!!!!!!!!!!
+        # Check for collisions
+        if collisions_on:
+            for obj_name1, obj1 in DICT.items():
+                for obj_name2, obj2 in DICT.items():
+                    if obj1['render'] and obj2['render']:
+                        if obj_name1 != obj_name2:
+                            if check_collision(obj1['object_class'], obj2['object_class']):
+                                #print(f"Collision detected between {obj_name1} and {obj_name2}")
+                                pos_x, pos_y, pos_z = prevous_x, prevous_y, prevous_z
+ 
         
         all_vertices = []
         all_faces = []
@@ -253,19 +290,12 @@ def main():
                     all_faces.append((adjusted_indices, color))
                 vertex_offset += len(obj_class.vertices)
         
-        # Sort faces by depth (furthest to closest)
-        sorted_faces = sort_high_to_low(all_vertices, all_faces)
-        
+        # Sort faces by dot product with camera's front vector
+        sorted_faces = sort_high_to_low(all_vertices, all_faces, camera_position, camera_front)
+
         # Draw all faces
         draw_faces(all_vertices, sorted_faces)
 
-        # Check for collisions
-        for obj_name1, obj1 in DICT.items():
-            for obj_name2, obj2 in DICT.items():
-                if obj1['render'] and obj2['render']:
-                    if obj_name1 != obj_name2:
-                        if check_collision(obj1['object_class'], obj2['object_class']):
-                            print(f"Collision detected between {obj_name1} and {obj_name2}")
 
         # See FPS
         fps = str(int(clock.get_fps()))
