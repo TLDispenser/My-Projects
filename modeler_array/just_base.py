@@ -62,15 +62,15 @@ class Object:
 DICT = {
     'square': {
         'object_class': Object('square'),
-        'render': False,
-        'move': False,
-        'collision': False
-    },
-    'bulbasaur': {
-        'object_class': Object('bulbasaur'),
         'render': True,
         'move': True,
         'collision': True
+    },
+    'bulbasaur': {
+        'object_class': Object('bulbasaur'),
+        'render': False,
+        'move': False,
+        'collision': False
     },
     'octahedron': {
         'object_class': Object('octahedron'),
@@ -151,10 +151,12 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
             vector_to_centroid = centroid - camera_position
             # Calculate the dot product with the camera's front vector
             dot_product = np.dot(vector_to_centroid, camera_front)
+            # Only add faces with a positive dot product
+            if dot_product > 0:
+                sorted_faces.append((dot_product, face))
         except IndexError:
             print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
             continue
-        sorted_faces.append((dot_product, face))
     sorted_faces.sort(reverse=True, key=lambda x: x[0])
     return sorted_faces
 
@@ -273,19 +275,18 @@ def main():
         if collisions_on:
             for obj_name1, obj1 in DICT.items():
                 for obj_name2, obj2 in DICT.items():
-                    if obj1['collision'] and obj2['collision']:
-                        if obj_name1 != obj_name2:
-                            if check_collision(obj1['object_class'], obj2['object_class']):
-                                # Reset position of the colliding objects
-                                obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
-                                obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
-                                # Reset position of moving objects
-                                if obj1['move'] or obj2['move']:
-                                    #pos_x, pos_y, pos_z = prevous_x, prevous_y, prevous_z
-                                    pos_x, pos_y, pos_z = prevous_x - (-2 * pos_x), prevous_y - (-2 * pos_y), prevous_z - (-2 * pos_z)
+                    if obj_name1 != obj_name2 and obj1['collision'] and obj2['collision']:
+                        if check_collision(obj1['object_class'], obj2['object_class']):
+                            # Reset position of the colliding objects
+                            obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
+                            obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
+                            # Reset position of moving objects
+                            if obj1['move'] or obj2['move']:
+                                pos_x, pos_y, pos_z = -1.1 * prevous_x, -1.1 * prevous_y, -1.1 * prevous_z
+                                #calculate_position(obj1['object_class'], angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
 
-                                
-                                
+        #calculate_position(DICT['octahedron']['object_class'], 0, 0, 0, .01, 0, 0, 0, 0, 0)
+
         all_vertices = []
         all_faces = []
         vertex_offset = 0
