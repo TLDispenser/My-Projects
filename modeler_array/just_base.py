@@ -67,19 +67,22 @@ DICT = {
         'object_class': Object('square'),
         'render': True,
         'move': True,
-        'collision': True
+        'collision': True,
+        'start_pos': (0, 0, 0)
     },
     'bulbasaur': {
         'object_class': Object('bulbasaur'),
         'render': False,
         'move': False,
-        'collision': False
+        'collision': False,
+        'start_pos': (-3, 0, 0)
     },
     'octahedron': {
         'object_class': Object('octahedron'),
         'render': True,
         'move': False,
-        'collision': True
+        'collision': True,
+        'start_pos': (3, 0, 0)
     }
 }
 
@@ -189,6 +192,15 @@ def main():
     # Define the camera's position and front vector
     camera_position = np.array([0, 0, -5])
     camera_front = np.array([0, 0, 1])
+    
+    
+    
+    
+    # Updates the start position of the objects\
+    for obj_name, obj in DICT.items():
+        calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'], 0, 0, 0)
+
+    
     
     while running:
         # Reset values to prevent continuous movement
