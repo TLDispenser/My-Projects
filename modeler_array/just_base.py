@@ -82,23 +82,24 @@ DICT = {
         'collision': True
     }
 }
-import random
 
-def project(x, y, z, scale, distance):
+def project(x, y, z, scale, distance, aspect_ratio):
     factor = scale / (distance + z)
-    x = x * factor + WIDTH // 2
+    x = x * factor * aspect_ratio + WIDTH // 2
     y = -y * factor + HEIGHT // 2
     return int(x), int(y)
 
 
-def draw_faces(all_vertices, sorted_faces):
+def draw_faces(all_vertices, sorted_faces, aspect_ratio):
     for depth, face in sorted_faces:
         vertices_indices, color = face
-        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4) for i in vertices_indices]
+        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4, aspect_ratio) for i in vertices_indices]
         
         # Darken the color based on depth
         darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
+
+        pygame.draw.polygon(screen, darkened_color, points)
 
         """# Draw the face in a grid shape
         for y in range(8):
@@ -106,7 +107,6 @@ def draw_faces(all_vertices, sorted_faces):
                 darkened_color = x * 32, y * 32, 0
                 grid_points = [(px + x * 10, py + y * 10) for px, py in points]
                 pygame.draw.polygon(screen, darkened_color, grid_points)"""
-        pygame.draw.polygon(screen, darkened_color, points)
 
 def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
     # Rotate
@@ -309,12 +309,15 @@ def main():
                     adjusted_indices = [index + vertex_offset for index in vertices_indices]
                     all_faces.append((adjusted_indices, color))
                 vertex_offset += len(obj_class.vertices)
-        
+
         # Sort faces by dot product with camera's front vector
         sorted_faces = sort_high_to_low(all_vertices, all_faces, camera_position, camera_front)
+        
+        # Calculate aspect ratio
+        aspect_ratio = pygame.display.get_surface().get_width() / pygame.display.get_surface().get_height()
 
         # Draw all faces
-        draw_faces(all_vertices, sorted_faces)
+        draw_faces(all_vertices, sorted_faces, aspect_ratio)
 
 
         # See FPS
