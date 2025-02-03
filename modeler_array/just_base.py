@@ -25,7 +25,7 @@ BLACK = (0, 0, 0)
 # Darkening effect
 DARKENING_FACTOR = 50
 # Rendering distance
-RENDER_DISTANCE = 60
+RENDER_DISTANCE = 30
 
 
 
@@ -160,7 +160,7 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
             # Calculate the dot product with the camera's front vector
             dot_product = np.dot(vector_to_centroid, camera_front)
             # Only add faces with a positive dot product
-            if dot_product > 0:
+            if dot_product > 0 and centroid[2] < RENDER_DISTANCE:
                 sorted_faces.append((dot_product, face))
         except IndexError:
             print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
