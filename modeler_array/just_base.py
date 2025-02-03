@@ -24,6 +24,9 @@ BLACK = (0, 0, 0)
 
 # Darkening effect
 DARKENING_FACTOR = 50
+# Rendering distance
+RENDER_DISTANCE = 60
+
 
 
 class Object:
@@ -79,7 +82,7 @@ DICT = {
         'collision': True
     }
 }
-
+import random
 
 def project(x, y, z, scale, distance):
     factor = scale / (distance + z)
@@ -97,8 +100,13 @@ def draw_faces(all_vertices, sorted_faces):
         darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
 
+        """# Draw the face in a grid shape
+        for y in range(8):
+            for x in range(8):
+                darkened_color = x * 32, y * 32, 0
+                grid_points = [(px + x * 10, py + y * 10) for px, py in points]
+                pygame.draw.polygon(screen, darkened_color, grid_points)"""
         pygame.draw.polygon(screen, darkened_color, points)
-
 
 def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
     # Rotate
