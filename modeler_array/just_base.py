@@ -101,8 +101,12 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         # Darken the color based on depth
         darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
-
-        pygame.draw.polygon(screen, darkened_color, points)
+        
+        try:
+            pygame.draw.polygon(screen, darkened_color, points)
+        except Exception:
+            print(f"Error: {points}")
+            continue
 
         """# Draw the face in a grid shape
         for y in range(8):
@@ -163,7 +167,7 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
             # Calculate the dot product with the camera's front vector
             dot_product = np.dot(vector_to_centroid, camera_front)
             # Only add faces with a positive dot product
-            if dot_product > 0 and centroid[2] < RENDER_DISTANCE:
+            if dot_product > 1.4 and centroid[2] < RENDER_DISTANCE:
                 sorted_faces.append((dot_product, face))
         except IndexError:
             print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
