@@ -102,9 +102,32 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
         
+        
+        
+        
+        # TRY THIS CODE TO see if work
+        """test_1 = [1, 2, 3, 4]
+test_2 = [(1, 2), (3, 4), (5, 6), (7, 8)]
+
+
+
+isinstance(test_1, list)
+
+if len(test_1) == 4:
+    print(isinstance(test_1[0], float))
+if len(test_2) == 4:
+    print(isinstance(test_2[0], int))"""
+        
+        
+        
+        
+        
         try:
-            pygame.draw.polygon(screen, darkened_color, points)
+            vertices_indices[0] = float(vertices_indices[0])
+            if isinstance(vertices_indices[0], float):
+                pygame.draw.polygon(screen, darkened_color, points)
         except Exception:
+            print(isinstance(vertices_indices[0], float))
             print(f"Error: {points}")
             continue
 
@@ -159,6 +182,24 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
     sorted_faces = []
     for face in all_faces:
         vertices_indices, color = face
+        
+        """
+            One of the indices in [10, 8, 12] is NOT out of range for transformed_vertices
+            One of the indices in [8, 9, 13] is NOT out of range for transformed_vertices
+            One of the indices in [9, 11, 13] is NOT out of range for transformed_vertices
+            One of the indices in [11, 10, 13] is NOT out of range for transformed_vertices
+            One of the indices in [10, 8, 13] is NOT out of range for transformed_vertices
+            Error: [(600479950316066432, -450359962737049280), (-600479950316065664, -450359962737049280), (666, 500), (133, 500)]
+            Error: [(-600479950316065664, 450359962737049920), (600479950316066432, 450359962737049920), (133, 99), (666, 99)]
+            Error: [(600479950316066432, -450359962737049280), (600479950316066432, 450359962737049920), (133, 99), (133, 500)]
+            Error: [(-600479950316065664, -450359962737049280), (-600479950316065664, 450359962737049920), (666, 99), (666, 500)]
+            One of the indices in [0, 1, 2, 3] is NOT out of range for transformed_vertices
+            One of the indices in [4, 5, 6, 7] is NOT out of range for transformed_vertices
+            One of the indices in [0, 1, 5, 4] is NOT out of range for transformed_vertices
+            One of the indices in [2, 3, 7, 6] is NOT out of range for transformed_vertices
+        """
+        
+        
         try:
             # Calculate the centroid of the face
             centroid = np.mean([all_vertices[i] for i in vertices_indices], axis=0)
@@ -166,10 +207,11 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
             vector_to_centroid = centroid - camera_position
             # Calculate the dot product with the camera's front vector
             dot_product = np.dot(vector_to_centroid, camera_front)
-            # Only add faces with a positive dot product
-            if dot_product > 1.4 and centroid[2] < RENDER_DISTANCE:
+            # Checks to see if face's vertices are out of array range
+            # Only add faces with a positive dot product and within the render distance
+            if dot_product > 0 and centroid[2] < RENDER_DISTANCE:
                 sorted_faces.append((dot_product, face))
-        except IndexError:
+        except Exception:
             print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
             continue
     sorted_faces.sort(reverse=True, key=lambda x: x[0])
