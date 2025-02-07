@@ -1,10 +1,8 @@
-testing_one = False
-
 import pygame
+import sys
 import math
 import numpy as np
 import pygame.gfxdraw
-
 
 # models
 print("Importing models.... (Might take a while)")
@@ -28,7 +26,6 @@ BLACK = (0, 0, 0)
 DARKENING_FACTOR = 50
 # Rendering distance
 RENDER_DISTANCE = 30
-
 
 
 class Object:
@@ -62,9 +59,6 @@ class Object:
         self.edges = edges
         self.faces = faces
         self.pivot = pivot
-
-
-
 # Dictionary of objects
 DICT = {
     'square': {
@@ -89,154 +83,6 @@ DICT = {
         'start_pos': (3, 0, 0)
     }
 }
-
-def project(x, y, z, scale, distance, aspect_ratio):
-    factor = scale / (distance + z)
-    x = x * factor * aspect_ratio + WIDTH // 2
-    y = -y * factor + HEIGHT // 2
-    return int(x), int(y)
-
-
-def draw_faces(all_vertices, sorted_faces, aspect_ratio):
-    for depth, face in sorted_faces:
-        vertices_indices, color = face
-        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4, aspect_ratio) for i in vertices_indices]
-        
-        # Darken the color based on depth
-        darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
-        darkened_color = tuple(int(c * darken_factor) for c in color)
-        
-        
-        
-        
-        # TRY THIS CODE TO see if it works
-        """test_1 = [1, 2, 3, 4]
-test_2 = [(1, 2), (3, 4), (5, 6), (7, 8)]
-
-
-
-isinstance(test_1, list)
-
-if len(test_1) == 4:
-    print(isinstance(test_1[0], float))
-if len(test_2) == 4:
-    print(isinstance(test_2[0], int))"""
-        
-        
-        
-        
-        
-        try:
-            vertices_indices[0] = float(vertices_indices[0])
-            if isinstance(vertices_indices[0], float):
-                pygame.draw.polygon(screen, darkened_color, points)
-                #pygame.gfxdraw.aapolygon(screen, points, darkened_color)
-                #pygame.gfxdraw.textured_polygon(screen, points, pygame.image.load("man.jpg"), 0, 0)
-                #pygame.gfxdraw.textured_polygon((pygame.draw.polygon(screen, darkened_color, points)), points, pygame.image.load("man.jpg"), 0, 0)
-        except Exception:
-            #print(isinstance(vertices_indices[0], float))
-            #print(f"Error: {points}")
-            # THWEERW S_AJDOIUWAHODIYGAWO*DYG 
-            #YEa there are sill issues with the code
-            continue
-
-        """# Draw the face in a grid shape
-        for y in range(8):
-            for x in range(8):
-                darkened_color = x * 32, y * 32, 0
-                grid_points = [(px + x * 10, py + y * 10) for px, py in points]
-                pygame.draw.polygon(screen, darkened_color, grid_points)"""
-
-def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
-    # Rotate
-    cos_angle_x = math.cos(angle_x)
-    sin_angle_x = math.sin(angle_x)
-    cos_angle_y = math.cos(angle_y)
-    sin_angle_y = math.sin(angle_y)
-    cos_angle_z = math.cos(angle_z)
-    sin_angle_z = math.sin(angle_z)
-
-    transformed_vertices = []
-    for x, y, z in obj_class.vertices:
-        # Translate to pivot
-        x -= obj_class.pivot[0]
-        y -= obj_class.pivot[1]
-        z -= obj_class.pivot[2]
-        
-        # Rotate around x-axis
-        y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
-        # Rotate around y-axis
-        x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
-        # Rotate around z-axis
-        x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
-        
-        # Apply position offsets
-        x += obj_class.pivot[0] + pos_x
-        y += obj_class.pivot[1] + pos_y
-        z += obj_class.pivot[2] + pos_z
-        
-        # Update pivot`s position`
-        pivot = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
-            
-        transformed_vertices.append((x, y, z))
-    
-    obj_class.update_object(transformed_vertices, obj_class.edges, obj_class.faces, pivot)
-    
-    return transformed_vertices
-
-
-
-
-def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
-    sorted_faces = []
-    for face in all_faces:
-        vertices_indices, color = face
-        
-        """
-            One of the indices in [10, 8, 12] is NOT out of range for transformed_vertices
-            One of the indices in [8, 9, 13] is NOT out of range for transformed_vertices
-            One of the indices in [9, 11, 13] is NOT out of range for transformed_vertices
-            One of the indices in [11, 10, 13] is NOT out of range for transformed_vertices
-            One of the indices in [10, 8, 13] is NOT out of range for transformed_vertices
-            Error: [(600479950316066432, -450359962737049280), (-600479950316065664, -450359962737049280), (666, 500), (133, 500)]
-            Error: [(-600479950316065664, 450359962737049920), (600479950316066432, 450359962737049920), (133, 99), (666, 99)]
-            Error: [(600479950316066432, -450359962737049280), (600479950316066432, 450359962737049920), (133, 99), (133, 500)]
-            Error: [(-600479950316065664, -450359962737049280), (-600479950316065664, 450359962737049920), (666, 99), (666, 500)]
-            One of the indices in [0, 1, 2, 3] is NOT out of range for transformed_vertices
-            One of the indices in [4, 5, 6, 7] is NOT out of range for transformed_vertices
-            One of the indices in [0, 1, 5, 4] is NOT out of range for transformed_vertices
-            One of the indices in [2, 3, 7, 6] is NOT out of range for transformed_vertices
-        """
-        
-        
-        try:
-            # Calculate the centroid of the face
-            centroid = np.mean([all_vertices[i] for i in vertices_indices], axis=0)
-            # Calculate the vector from the camera to the centroid
-            vector_to_centroid = centroid - camera_position
-            # Calculate the dot product with the camera's front vector
-            dot_product = np.dot(vector_to_centroid, camera_front)
-            # Checks to see if face's vertices are out of array range
-            # Only add faces with a positive dot product and within the render distance
-            if dot_product > 0 and centroid[2] < RENDER_DISTANCE:
-                sorted_faces.append((dot_product, face))
-        except Exception:
-            print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
-            continue
-    sorted_faces.sort(reverse=True, key=lambda x: x[0])
-    return sorted_faces
-
-
-def check_collision(obj1, obj2):
-    (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
-    (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj2.get_bounding_box()
-
-    return (min_x1 <= max_x2 and max_x1 >= min_x2 and
-            min_y1 <= max_y2 and max_y1 >= min_y2 and
-            min_z1 <= max_z2 and max_z1 >= min_z2)
-
-
-
 class Cam:
     def __init__(self, pos=(0, 0, 0), rot=(0, 0)):
         self.pos = list(pos)
@@ -278,18 +124,120 @@ class Cam:
         if key[pygame.K_d]:
             self.pos[0] += y
             self.pos[2] -= x
+
+        if key[pygame.K_ESCAPE]:
+            pygame.quit()
+            sys.exit()  # Quits Game#
+
+    def transform(self, vertices):
+        transformed_vertices = []
+        cos_x, sin_x = math.cos(self.rot[0]), math.sin(self.rot[0])
+        cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
+        for x, y, z in vertices:
+            x -= self.pos[0]
+            y -= self.pos[1]
+            z -= self.pos[2]
+
+            # Rotate around x-axis
+            y, z = y * cos_x - z * sin_x, z * cos_x + y * sin_x
+            # Rotate around y-axis
+            x, z = x * cos_y - z * sin_y, z * cos_y + x * sin_y
+
+            transformed_vertices.append((x, y, z))
+        return transformed_vertices
+
+def project(x, y, z, scale, distance, aspect_ratio):
+    factor = scale / (distance + z)
+    x = x * factor * aspect_ratio + WIDTH // 2
+    y = -y * factor + HEIGHT // 2
+    return int(x), int(y)
+
+
+def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
+    cos_angle_x = math.cos(angle_x)
+    sin_angle_x = math.sin(angle_x)
+    cos_angle_y = math.cos(angle_y)
+    sin_angle_y = math.sin(angle_y)
+    cos_angle_z = math.cos(angle_z)
+    sin_angle_z = math.sin(angle_z)
+
+    transformed_vertices = []
+    for x, y, z in obj_class.vertices:
+        # Translate to pivot
+        x -= obj_class.pivot[0]
+        y -= obj_class.pivot[1]
+        z -= obj_class.pivot[2]
         
+        # Rotate around x-axis
+        y, z = y * cos_angle_x - z * sin_angle_x, z * cos_angle_x + y * sin_angle_x
+        # Rotate around y-axis
+        x, z = x * cos_angle_y - z * sin_angle_y, z * cos_angle_y + x * sin_angle_y
+        # Rotate around z-axis
+        x, y = x * cos_angle_z - y * sin_angle_z, y * cos_angle_z + x * sin_angle_z
+        
+        # Apply position offsets
+        x += obj_class.pivot[0] + pos_x
+        y += obj_class.pivot[1] + pos_y
+        z += obj_class.pivot[2] + pos_z
+        
+        # Update pivot's position
+        pivot = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
+            
+        transformed_vertices.append((x, y, z))
+    
+    obj_class.update_object(transformed_vertices, obj_class.edges, obj_class.faces, pivot)
+    
+    return transformed_vertices
 
+def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
+    sorted_faces = []
+    for face in all_faces:
+        vertices_indices, color = face
+        try:
+            # Ensure indices are within range
+            if all(0 <= index < len(all_vertices) for index in vertices_indices):
+                # Calculate the average depth of the face
+                depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
+                sorted_faces.append((depth, face))
+        except IndexError:
+            print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
+    
+    # Sort faces by depth in descending order
+    sorted_faces.sort(key=lambda x: x[0], reverse=True)
+    return sorted_faces
 
+def check_collision(obj1, obj2):
+    (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
+    (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj2.get_bounding_box()
 
+    return (min_x1 <= max_x2 and max_x1 >= min_x2 and
+            min_y1 <= max_y2 and max_y1 >= min_y2 and
+            min_z1 <= max_z2 and max_z1 >= min_z2)
 
+def draw_faces(all_vertices, sorted_faces, aspect_ratio):
+    for depth, face in sorted_faces:
+        vertices_indices, color = face
+        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4, aspect_ratio) for i in vertices_indices]
+        
+        # Darken the color based on depth
+        darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
+        darkened_color = tuple(int(c * darken_factor) for c in color)
+        
+        try:
+            vertices_indices[0] = float(vertices_indices[0])
+            if isinstance(vertices_indices[0], float):
+                pygame.draw.polygon(screen, darkened_color, points)
+        except Exception:
+            print(f"Error drawing polygon with points: {points}")
 
 def main():
+    global screen
     clock = pygame.time.Clock()
     
     collisions_on = True
     running = True
-
+    can_move = True
+    can_rotate = True
 
     # Define the camera's position and front vector
     camera_position = np.array([0, 0, -5])
@@ -301,13 +249,20 @@ def main():
     pygame.mouse.set_visible(0)
     pygame.event.set_grab(1)
     
-    
-    # Updates the start position of the objects\
+    # Updates the start position of the objects
     for obj_name, obj in DICT.items():
         calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'], 0, 0, 0)
-    
+
     while running:
         dt = clock.tick() / 1000
+        
+        # Reset values to prevent continuous movement
+        angle_x = 0
+        angle_y = 0
+        angle_z = 0
+        pos_x = 0
+        pos_y = 0
+        pos_z = 0
         
         # Single input
         for event in pygame.event.get():
@@ -316,27 +271,8 @@ def main():
             if event.type == pygame.VIDEORESIZE:
                 global WIDTH, HEIGHT
                 WIDTH, HEIGHT = event.size
-                global screen
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                if event.key == pygame.K_r:
-                    print("Collision detection is now", not collisions_on)
-                    collisions_on = not collisions_on
-                if event.key == pygame.K_t:
-                    # DEBUG: Prints every object's bounding box vand what its hitting and where it is hitting 
-                    checked_pairs = set()
-                    for obj_name, obj in DICT.items():
-                        print(f"{obj_name}: {obj['object_class'].get_bounding_box()}")
-                        for obj_name2, obj2 in DICT.items():
-                            if obj_name != obj_name2 and (obj_name2, obj_name) not in checked_pairs:
-                                if obj['collision'] and obj2['collision']:
-                                    if check_collision(obj['object_class'], obj2['object_class']):
-                                        print(f"Colliding with:" )
-                                        print(f"    {obj_name2}")
-                                checked_pairs.add((obj_name, obj_name2))
-
+            cam.events(event)
         
         keys = pygame.key.get_pressed()
         cam.update(dt, keys)
@@ -356,6 +292,8 @@ def main():
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
 
+        # Previous position
+        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
 
         # Check for collisions
         if collisions_on:
@@ -364,14 +302,12 @@ def main():
                     if obj_name1 != obj_name2 and obj1['collision'] and obj2['collision']:
                         if check_collision(obj1['object_class'], obj2['object_class']):
                             # Reset position of the colliding objects
-                            all_vertices += cam.transform(obj_class.vertices)
+                            obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
                             obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
                             # Reset position of moving objects
                             if obj1['move'] or obj2['move']:
-                                continue
-                                #calculate_position(obj1['object_class'], angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
-
-        #calculate_position(DICT['octahedron']['object_class'], 0, 0, 0, .01, 0, 0, 0, 0, 0)
+                                pos_x, pos_y, pos_z = -1.1 * prevous_x, -1.1 * prevous_y, -1.1 * prevous_z
+                                calculate_position(obj1['object_class'], angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
 
         all_vertices = []
         all_faces = []
@@ -380,7 +316,7 @@ def main():
             if obj['render']:
                 obj_class = obj['object_class']
                 if obj['move']:
-                    calculate_position(obj_class, cam.rot[0], cam.rot[1], cam.rot[0], cam.pos[0], cam.pos[1], cam.pos[2], 0, 0, 0)
+                    calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
                 all_vertices += obj_class.vertices
                 for face in obj_class.faces:
                     vertices_indices, color = face
@@ -388,15 +324,17 @@ def main():
                     all_faces.append((adjusted_indices, color))
                 vertex_offset += len(obj_class.vertices)
 
+        # Transform vertices based on camera position and rotation
+        transformed_vertices = cam.transform(all_vertices)
+
         # Sort faces by dot product with camera's front vector
-        sorted_faces = sort_high_to_low(all_vertices, all_faces, camera_position, camera_front)
+        sorted_faces = sort_high_to_low(transformed_vertices, all_faces, camera_position, camera_front)
         
         # Calculate aspect ratio
         aspect_ratio = pygame.display.get_surface().get_width() / pygame.display.get_surface().get_height()
 
         # Draw all faces
-        draw_faces(all_vertices, sorted_faces, aspect_ratio)
-
+        draw_faces(transformed_vertices, sorted_faces, aspect_ratio)
 
         # See FPS
         fps = str(int(clock.get_fps()))
@@ -404,14 +342,10 @@ def main():
         fpssurface = font.render(fps, False, (255, 255, 255))
         screen.blit(fpssurface, (0, 0))
 
-        if testing_one:
-            running = False
-        
         pygame.display.flip()
         clock.tick(60)
         
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
