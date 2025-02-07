@@ -289,8 +289,7 @@ def main():
     
     collisions_on = True
     running = True
-    can_move = True
-    can_rotate = True
+
 
     # Define the camera's position and front vector
     camera_position = np.array([0, 0, -5])
@@ -309,13 +308,6 @@ def main():
     
     while running:
         dt = clock.tick() / 1000
-        # Reset values to prevent continuous movement
-        angle_x = 0
-        angle_y = 0
-        angle_z = 0
-        pos_x = 0
-        pos_y = 0
-        pos_z = 0
         
         # Single input
         for event in pygame.event.get():
@@ -349,38 +341,6 @@ def main():
         keys = pygame.key.get_pressed()
         cam.update(dt, keys)
         
-        """# Continuous input
-        if can_rotate:
-            rotation_speed = 0.05
-            if keys[pygame.K_LEFT] and not keys[pygame.K_LCTRL]:
-                angle_y -= rotation_speed
-            if keys[pygame.K_RIGHT] and not keys[pygame.K_LCTRL]:
-                angle_y += rotation_speed
-            if keys[pygame.K_UP] and not keys[pygame.K_LCTRL]:
-                angle_x -= rotation_speed
-            if keys[pygame.K_DOWN] and not keys[pygame.K_LCTRL]:
-                angle_x += rotation_speed
-            if keys[pygame.K_e]:
-                angle_z -= rotation_speed
-            if keys[pygame.K_q]:
-                angle_z += rotation_speed
-        move_speed = 0.1
-        if keys[pygame.K_LSHIFT]:
-            move_speed = 0.5
-        if can_move:
-            if keys[pygame.K_s]:
-                pos_z -= move_speed
-            if keys[pygame.K_w]:
-                pos_z += move_speed
-            if keys[pygame.K_a]:
-                pos_x -= move_speed
-            if keys[pygame.K_d]:
-                pos_x += move_speed
-            if keys[pygame.K_SPACE]:
-                pos_y += move_speed
-            if keys[pygame.K_c]:
-                pos_y -= move_speed"""
-
         # Camera movement
         camera_move_speed = 0.1
         if keys[pygame.K_LCTRL]:
@@ -395,9 +355,7 @@ def main():
 
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
- 
-        # Previous position
-        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
+
 
         # Check for collisions
         if collisions_on:
@@ -410,7 +368,7 @@ def main():
                             obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
                             # Reset position of moving objects
                             if obj1['move'] or obj2['move']:
-                                pos_x, pos_y, pos_z = -1.1 * prevous_x, -1.1 * prevous_y, -1.1 * prevous_z
+                                continue
                                 #calculate_position(obj1['object_class'], angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
 
         #calculate_position(DICT['octahedron']['object_class'], 0, 0, 0, .01, 0, 0, 0, 0, 0)
@@ -422,9 +380,7 @@ def main():
             if obj['render']:
                 obj_class = obj['object_class']
                 if obj['move']:
-                    pos_x, pos_y, pos_z = cam.pos
-                    
-                    calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
+                    calculate_position(obj_class, cam.rot[0], cam.rot[1], cam.rot[0], cam.pos[0], cam.pos[1], cam.pos[2], 0, 0, 0)
                 all_vertices += obj_class.vertices
                 for face in obj_class.faces:
                     vertices_indices, color = face
