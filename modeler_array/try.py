@@ -94,7 +94,7 @@ class Cam:
             x /= 200
             y /= 200
             self.rot[0] += y
-            self.rot[1] += x
+            self.rot[1] -= x
 
     def update(self, dt, key):
         s = dt * 10
