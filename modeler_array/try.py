@@ -63,6 +63,8 @@ class Object:
         self.faces = faces
         self.pivot = pivot
 
+
+
 # Dictionary of objects
 DICT = {
     'square': {
@@ -128,7 +130,8 @@ if len(test_2) == 4:
             vertices_indices[0] = float(vertices_indices[0])
             if isinstance(vertices_indices[0], float):
                 pygame.draw.polygon(screen, darkened_color, points)
-                pygame.gfxdraw.aapolygon(screen, points, darkened_color)
+                #pygame.gfxdraw.aapolygon(screen, points, darkened_color)
+                #pygame.gfxdraw.textured_polygon(screen, points, pygame.image.load("man.jpg"), 0, 0)
                 #pygame.gfxdraw.textured_polygon((pygame.draw.polygon(screen, darkened_color, points)), points, pygame.image.load("man.jpg"), 0, 0)
         except Exception:
             #print(isinstance(vertices_indices[0], float))
@@ -233,6 +236,54 @@ def check_collision(obj1, obj2):
             min_z1 <= max_z2 and max_z1 >= min_z2)
 
 
+
+class Cam:
+    def __init__(self, pos=(0, 0, 0), rot=(0, 0)):
+        self.pos = list(pos)
+        self.rot = list(rot)
+
+    def events(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            x, y = event.rel
+            x /= 200
+            y /= 200
+            self.rot[0] += y
+            self.rot[1] += x
+
+    def update(self, dt, key):
+        s = dt * 10
+
+        if key[pygame.K_c]:
+            self.pos[1] += s
+        if key[pygame.K_SPACE]:
+            self.pos[1] -= s
+
+        x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
+
+        if self.rot[0] <= -1.58:
+            self.rot[0] = -1.58
+
+        if self.rot[0] >= 1.58:
+            self.rot[0] = 1.58
+
+        if key[pygame.K_w]:
+            self.pos[0] += x
+            self.pos[2] += y
+        if key[pygame.K_s]:
+            self.pos[0] -= x
+            self.pos[2] -= y
+        if key[pygame.K_a]:
+            self.pos[0] -= y
+            self.pos[2] += x
+        if key[pygame.K_d]:
+            self.pos[0] += y
+            self.pos[2] -= x
+        
+
+
+
+
+
 def main():
     clock = pygame.time.Clock()
     
@@ -245,16 +296,19 @@ def main():
     camera_position = np.array([0, 0, -5])
     camera_front = np.array([0, 0, 1])
     
-    
+    cam = Cam((0, 0, -5))
+    pygame.event.get()
+    pygame.mouse.get_rel()
+    pygame.mouse.set_visible(0)
+    pygame.event.set_grab(1)
     
     
     # Updates the start position of the objects\
     for obj_name, obj in DICT.items():
         calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'], 0, 0, 0)
-
-    
     
     while running:
+        dt = clock.tick() / 1000
         # Reset values to prevent continuous movement
         angle_x = 0
         angle_y = 0
@@ -291,9 +345,11 @@ def main():
                                         print(f"    {obj_name2}")
                                 checked_pairs.add((obj_name, obj_name2))
 
-                
-        # Continuous input
+        
         keys = pygame.key.get_pressed()
+        cam.update(dt, keys)
+        
+        """# Continuous input
         if can_rotate:
             rotation_speed = 0.05
             if keys[pygame.K_LEFT] and not keys[pygame.K_LCTRL]:
@@ -323,7 +379,7 @@ def main():
             if keys[pygame.K_SPACE]:
                 pos_y += move_speed
             if keys[pygame.K_c]:
-                pos_y -= move_speed
+                pos_y -= move_speed"""
 
         # Camera movement
         camera_move_speed = 0.1
@@ -350,7 +406,7 @@ def main():
                     if obj_name1 != obj_name2 and obj1['collision'] and obj2['collision']:
                         if check_collision(obj1['object_class'], obj2['object_class']):
                             # Reset position of the colliding objects
-                            obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
+                            all_vertices += cam.transform(obj_class.vertices)
                             obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
                             # Reset position of moving objects
                             if obj1['move'] or obj2['move']:
@@ -366,6 +422,8 @@ def main():
             if obj['render']:
                 obj_class = obj['object_class']
                 if obj['move']:
+                    pos_x, pos_y, pos_z = cam.pos
+                    
                     calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
                 all_vertices += obj_class.vertices
                 for face in obj_class.faces:
