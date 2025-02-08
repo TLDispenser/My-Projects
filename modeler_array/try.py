@@ -84,20 +84,20 @@ DICT = {
     }
 }
 class Cam:
-    def __init__(self, pos=(0, 0, 0), rot=(0, 0)):
+    def __init__(self, pos):
         self.pos = list(pos)
-        self.rot = list(rot)
+        self.rot = [0, 0]
 
     def events(self, event):
         if event.type == pygame.MOUSEMOTION:
             x, y = event.rel
             x /= 200
             y /= 200
-            self.rot[0] += y
-            self.rot[1] -= x
+            self.rot[0] -= y
+            self.rot[1] += x
 
-    def update(self, dt, key):
-        s = dt * 10
+    def update(self, key):
+        s = .1
 
         if key[pygame.K_c]:
             self.pos[1] += s
@@ -105,7 +105,8 @@ class Cam:
             self.pos[1] -= s
 
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
-
+ 
+        
         if self.rot[0] <= -1.58:
             self.rot[0] = -1.58
 
@@ -127,21 +128,21 @@ class Cam:
 
         if key[pygame.K_ESCAPE]:
             pygame.quit()
-            sys.exit()  # Quits Game#
+            sys.exit()  # Quits Game
 
     def transform(self, vertices):
         transformed_vertices = []
-        cos_x, sin_x = math.cos(self.rot[0]), math.sin(self.rot[0])
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
         for x, y, z in vertices:
             x -= self.pos[0]
             y -= self.pos[1]
             z -= self.pos[2]
 
-            # Rotate around x-axis
-            y, z = y * cos_x - z * sin_x, z * cos_x + y * sin_x
             # Rotate around y-axis
-            x, z = x * cos_y - z * sin_y, z * cos_y + x * sin_y
+            x, z = x * cos_y - z * sin_y, x * sin_y + z * cos_y
+
+            # Apply vertical rotation (up and down) by adjusting y position
+            y -= self.rot[0] * 4  # Adjust the multiplier to control the vertical movement speed
 
             transformed_vertices.append((x, y, z))
         return transformed_vertices
@@ -153,7 +154,7 @@ def project(x, y, z, scale, distance, aspect_ratio):
     return int(x), int(y)
 
 
-def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
+def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z,):
     cos_angle_x = math.cos(angle_x)
     sin_angle_x = math.sin(angle_x)
     cos_angle_y = math.cos(angle_y)
@@ -189,7 +190,7 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
     
     return transformed_vertices
 
-def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
+def sort_high_to_low(all_vertices, all_faces):
     sorted_faces = []
     for face in all_faces:
         vertices_indices, color = face
@@ -198,7 +199,9 @@ def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
             if all(0 <= index < len(all_vertices) for index in vertices_indices):
                 # Calculate the average depth of the face
                 depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
-                sorted_faces.append((depth, face))
+                # Check if the face is within the render distance
+                if -3 < depth < RENDER_DISTANCE:
+                    sorted_faces.append((depth, face))
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
@@ -230,19 +233,28 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         except Exception:
             print(f"Error drawing polygon with points: {points}")
 
+def get_all_faces():
+    all_vertices = []
+    all_faces = []
+    vertex_offset = 0
+    for obj_name, obj in DICT.items():
+        if obj['render']:
+            obj_class = obj['object_class']
+            all_vertices += obj_class.vertices
+            for face in obj_class.faces:
+                vertices_indices, color = face
+                adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                all_faces.append((adjusted_indices, color))
+            vertex_offset += len(obj_class.vertices)
+    return all_vertices, all_faces
+
 def main():
     global screen
     clock = pygame.time.Clock()
     
     collisions_on = True
     running = True
-    can_move = True
-    can_rotate = True
 
-    # Define the camera's position and front vector
-    camera_position = np.array([0, 0, -5])
-    camera_front = np.array([0, 0, 1])
-    
     cam = Cam((0, 0, -5))
     pygame.event.get()
     pygame.mouse.get_rel()
@@ -251,19 +263,9 @@ def main():
     
     # Updates the start position of the objects
     for obj_name, obj in DICT.items():
-        calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'], 0, 0, 0)
+        calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'])
 
     while running:
-        dt = clock.tick() / 1000
-        
-        # Reset values to prevent continuous movement
-        angle_x = 0
-        angle_y = 0
-        angle_z = 0
-        pos_x = 0
-        pos_y = 0
-        pos_z = 0
-        
         # Single input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -273,62 +275,21 @@ def main():
                 WIDTH, HEIGHT = event.size
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
             cam.events(event)
-        
+        calculate_position(DICT['square']['object_class'], 0, 0, 0, .05, 0, 0)
         keys = pygame.key.get_pressed()
-        cam.update(dt, keys)
-        
-        # Camera movement
-        camera_move_speed = 0.1
-        if keys[pygame.K_LCTRL]:
-            if keys[pygame.K_LEFT]:
-                camera_position[0] -= camera_move_speed
-            if keys[pygame.K_RIGHT]:
-                camera_position[0] += camera_move_speed
-            if keys[pygame.K_UP]:
-                camera_position[1] += camera_move_speed
-            if keys[pygame.K_DOWN]:
-                camera_position[1] -= camera_move_speed
+        cam.update(keys)
 
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
 
-        # Previous position
-        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
-
-        # Check for collisions
-        if collisions_on:
-            for obj_name1, obj1 in DICT.items():
-                for obj_name2, obj2 in DICT.items():
-                    if obj_name1 != obj_name2 and obj1['collision'] and obj2['collision']:
-                        if check_collision(obj1['object_class'], obj2['object_class']):
-                            # Reset position of the colliding objects
-                            obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
-                            obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
-                            # Reset position of moving objects
-                            if obj1['move'] or obj2['move']:
-                                pos_x, pos_y, pos_z = -1.1 * prevous_x, -1.1 * prevous_y, -1.1 * prevous_z
-                                calculate_position(obj1['object_class'], angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
-
-        all_vertices = []
-        all_faces = []
-        vertex_offset = 0
-        for obj_name, obj in DICT.items():
-            if obj['render']:
-                obj_class = obj['object_class']
-                if obj['move']:
-                    calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
-                all_vertices += obj_class.vertices
-                for face in obj_class.faces:
-                    vertices_indices, color = face
-                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                    all_faces.append((adjusted_indices, color))
-                vertex_offset += len(obj_class.vertices)
+        # Get all faces to render
+        all_vertices, all_faces = get_all_faces()
 
         # Transform vertices based on camera position and rotation
         transformed_vertices = cam.transform(all_vertices)
 
         # Sort faces by dot product with camera's front vector
-        sorted_faces = sort_high_to_low(transformed_vertices, all_faces, camera_position, camera_front)
+        sorted_faces = sort_high_to_low(transformed_vertices, all_faces)
         
         # Calculate aspect ratio
         aspect_ratio = pygame.display.get_surface().get_width() / pygame.display.get_surface().get_height()
