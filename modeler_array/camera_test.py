@@ -1,6 +1,8 @@
 import pygame
+import sys
 import math
 import numpy as np
+import pygame.gfxdraw
 
 # models
 print("Importing models.... (Might take a while)")
@@ -22,6 +24,9 @@ BLACK = (0, 0, 0)
 
 # Darkening effect
 DARKENING_FACTOR = 50
+# Rendering distance
+RENDER_DISTANCE = 30
+
 
 class Object:
     # Initialize vertices, edges, and faces
@@ -54,60 +59,102 @@ class Object:
         self.edges = edges
         self.faces = faces
         self.pivot = pivot
-
 # Dictionary of objects
 DICT = {
     'square': {
         'object_class': Object('square'),
         'render': True,
         'move': True,
-        'collision': True
+        'collision': True,
+        'start_pos': (0, 0, 0)
     },
     'bulbasaur': {
         'object_class': Object('bulbasaur'),
         'render': False,
         'move': False,
-        'collision': False
+        'collision': False,
+        'start_pos': (-3, 0, 0)
     },
     'octahedron': {
         'object_class': Object('octahedron'),
         'render': True,
         'move': False,
-        'collision': True
+        'collision': True,
+        'start_pos': (3, 0, 0)
     }
 }
+class Cam:
+    def __init__(self, pos):
+        self.pos = list(pos)
+        self.rot = [0, 0]
 
-tolerance = 0.1
+    def events(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            x, y = event.rel
+            x /= 200
+            y /= 200
+            self.rot[0] -= y
+            self.rot[1] += x
 
-def check_collision(obj1, obj2):
-    (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
-    (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj2.get_bounding_box()
+    def update(self, key):
+        s = .1
 
-    collision_x = min_x1 <= max_x2 + tolerance and max_x1 >= min_x2 - tolerance
-    collision_y = min_y1 <= max_y2 + tolerance and max_y1 >= min_y2 - tolerance
-    collision_z = min_z1 <= max_z2 + tolerance and max_z1 >= min_z2 - tolerance
+        if key[pygame.K_c]:
+            self.pos[1] += s
+        if key[pygame.K_SPACE]:
+            self.pos[1] -= s
 
-    return collision_x, collision_y, collision_z
+        x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
+ 
+        
+        if self.rot[0] <= -1.58:
+            self.rot[0] = -1.58
 
-def project(x, y, z, scale, distance):
+        if self.rot[0] >= 1.58:
+            self.rot[0] = 1.58
+
+        if key[pygame.K_w]:
+            self.pos[0] += x
+            self.pos[2] += y
+        if key[pygame.K_s]:
+            self.pos[0] -= x
+            self.pos[2] -= y
+        if key[pygame.K_a]:
+            self.pos[0] -= y
+            self.pos[2] += x
+        if key[pygame.K_d]:
+            self.pos[0] += y
+            self.pos[2] -= x
+
+        if key[pygame.K_ESCAPE]:
+            pygame.quit()
+            sys.exit()  # Quits Game
+
+    def transform(self, vertices):
+        transformed_vertices = []
+        cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
+        for x, y, z in vertices:
+            x -= self.pos[0]
+            y -= self.pos[1]
+            z -= self.pos[2]
+
+            # Rotate around y-axis
+            x, z = x * cos_y - z * sin_y, x * sin_y + z * cos_y
+
+            # Apply vertical rotation (up and down) by adjusting y position
+            y -= self.rot[0] * 4  # Adjust the multiplier to control the vertical movement speed
+
+            transformed_vertices.append((x, y, z))
+        return transformed_vertices
+
+def project(x, y, z, scale, distance, aspect_ratio):
     factor = scale / (distance + z)
-    x = x * factor + WIDTH // 2
+    x = x * factor * aspect_ratio + WIDTH // 2
     y = -y * factor + HEIGHT // 2
     return int(x), int(y)
 
-def draw_faces(all_vertices, sorted_faces):
-    for depth, face in sorted_faces:
-        vertices_indices, color = face
-        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4) for i in vertices_indices]
-        
-        # Darken the color based on depth
-        darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
-        darkened_color = tuple(int(c * darken_factor) for c in color)
 
-        pygame.draw.polygon(screen, darkened_color, points)
-
-def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z):
-    # Rotate
+def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z,):
     cos_angle_x = math.cos(angle_x)
     sin_angle_x = math.sin(angle_x)
     cos_angle_y = math.cos(angle_y)
@@ -134,7 +181,7 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
         y += obj_class.pivot[1] + pos_y
         z += obj_class.pivot[2] + pos_z
         
-        # Update pivot`s position`
+        # Update pivot's position
         pivot = (obj_class.pivot[0] + pos_x, obj_class.pivot[1] + pos_y, obj_class.pivot[2] + pos_z)
             
         transformed_vertices.append((x, y, z))
@@ -143,67 +190,80 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
     
     return transformed_vertices
 
-def sort_high_to_low(all_vertices, all_faces, camera_position, camera_front):
+def sort_high_to_low(all_vertices, all_faces):
     sorted_faces = []
     for face in all_faces:
         vertices_indices, color = face
         try:
-            # Calculate the centroid of the face
-            centroid = np.mean([all_vertices[i] for i in vertices_indices], axis=0)
-            # Calculate the vector from the camera to the centroid
-            vector_to_centroid = centroid - camera_position
-            # Calculate the dot product with the camera's front vector
-            dot_product = np.dot(vector_to_centroid, camera_front)
+            # Ensure indices are within range
+            if all(0 <= index < len(all_vertices) for index in vertices_indices):
+                # Calculate the average depth of the face
+                depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
+                sorted_faces.append((depth, face))
         except IndexError:
-            print(f"IndexError: One of the indices in {vertices_indices} is out of range for transformed_vertices")
-            continue
-        sorted_faces.append((dot_product, face))
-    sorted_faces.sort(reverse=True, key=lambda x: x[0])
+            print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
+    
+    # Sort faces by depth in descending order
+    sorted_faces.sort(key=lambda x: x[0], reverse=True)
     return sorted_faces
 
+def check_collision(obj1, obj2):
+    (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
+    (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj2.get_bounding_box()
 
-def camera_movement(camera_position):
-    angle_x = camera_position[0]
-    angle_y = camera_position[1]
-    angle_z = camera_position[2]
+    return (min_x1 <= max_x2 and max_x1 >= min_x2 and
+            min_y1 <= max_y2 and max_y1 >= min_y2 and
+            min_z1 <= max_z2 and max_z1 >= min_z2)
+
+def draw_faces(all_vertices, sorted_faces, aspect_ratio):
+    for depth, face in sorted_faces:
+        vertices_indices, color = face
+        points = [project(all_vertices[i][0], all_vertices[i][1], all_vertices[i][2], 400, 4, aspect_ratio) for i in vertices_indices]
+        
+        # Darken the color based on depth
+        darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
+        darkened_color = tuple(int(c * darken_factor) for c in color)
+        
+        try:
+            vertices_indices[0] = float(vertices_indices[0])
+            if isinstance(vertices_indices[0], float):
+                pygame.draw.polygon(screen, darkened_color, points)
+        except Exception:
+            print(f"Error drawing polygon with points: {points}")
+
+def get_all_faces():
+    all_vertices = []
+    all_faces = []
+    vertex_offset = 0
     for obj_name, obj in DICT.items():
         if obj['render']:
             obj_class = obj['object_class']
-            calculate_position(obj_class, angle_x, angle_y, angle_z, 0, 0, 0, 0, 0, 0)
-
-
-
-
+            all_vertices += obj_class.vertices
+            for face in obj_class.faces:
+                vertices_indices, color = face
+                adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                all_faces.append((adjusted_indices, color))
+            vertex_offset += len(obj_class.vertices)
+    return all_vertices, all_faces
 
 def main():
+    global screen
     clock = pygame.time.Clock()
     
     collisions_on = True
     running = True
-    can_move = True
-    can_rotate = True
 
-    # Define the camera's position and front vector
-    # The camera's position is the origin of the world
-    camera_position = np.array([0, 0, -5])
-    # The camera's front vector is the direction the camera is facing
-    camera_front = np.array([0, 0, 1])
-    # The camera's up vector is the direction of the top of the camera
-    camera_up = np.array([0, 1, 0])
+    cam = Cam((0, 0, -5))
+    pygame.event.get()
+    pygame.mouse.get_rel()
+    pygame.mouse.set_visible(0)
+    pygame.event.set_grab(1)
+    
+    # Updates the start position of the objects
+    for obj_name, obj in DICT.items():
+        calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'])
 
     while running:
-        # Reset values to prevent continuous movement
-        angle_x = 0
-        angle_y = 0
-        angle_z = 0
-        pos_x = 0
-        pos_y = 0
-        pos_z = 0
-        
-        # Camera rotation reset
-        camera_roatating = False
-        
-        
         # Single input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -211,139 +271,29 @@ def main():
             if event.type == pygame.VIDEORESIZE:
                 global WIDTH, HEIGHT
                 WIDTH, HEIGHT = event.size
-                global screen
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                if event.key == pygame.K_r:
-                    print("Collision detection is now", not collisions_on)
-                    collisions_on = not collisions_on
-                if event.key == pygame.K_t:
-                    # DEBUG: Prints every object's bounding box and what it's hitting and where it is hitting
-                    checked_pairs = set()
-                    for obj_name, obj in DICT.items():
-                        print(f"{obj_name}: {obj['object_class'].get_bounding_box()}")
-                        for obj_name2, obj2 in DICT.items():
-                            if obj_name != obj_name2 and (obj_name2, obj_name) not in checked_pairs:
-                                if obj['collision'] and obj2['collision']:
-                                    collision_x, collision_y, collision_z = check_collision(obj['object_class'], obj2['object_class'])
-                                    if collision_x or collision_y or collision_z:
-                                        print(f"Colliding with:")
-                                        print(f"    {obj_name2}")
-                                checked_pairs.add((obj_name, obj_name2))
-
-        # Continuous input
+            cam.events(event)
+        
         keys = pygame.key.get_pressed()
-        if can_rotate:
-            rotation_speed = 0.05
-            if keys[pygame.K_LEFT] and not keys[pygame.K_LCTRL]:
-                angle_y -= rotation_speed
-            if keys[pygame.K_RIGHT] and not keys[pygame.K_LCTRL]:
-                angle_y += rotation_speed
-            if keys[pygame.K_UP] and not keys[pygame.K_LCTRL]:
-                angle_x -= rotation_speed
-            if keys[pygame.K_DOWN] and not keys[pygame.K_LCTRL]:
-                angle_x += rotation_speed
-            if keys[pygame.K_e]:
-                angle_z -= rotation_speed
-            if keys[pygame.K_q]:
-                angle_z += rotation_speed
-        move_speed = 0.1
-        if keys[pygame.K_LSHIFT]:
-            move_speed = 0.5
-        if can_move:
-            forward = camera_front * move_speed
-            right = np.cross(camera_front, camera_up) * move_speed
-            up = camera_up * move_speed
-            if keys[pygame.K_s]:
-                pos_x -= forward[0]
-                pos_y -= forward[1]
-                pos_z -= forward[2]
-            if keys[pygame.K_w]:
-                pos_x += forward[0]
-                pos_y += forward[1]
-                pos_z += forward[2]
-            if keys[pygame.K_a]:
-                pos_x -= right[0]
-                pos_y -= right[1]
-                pos_z -= right[2]
-            if keys[pygame.K_d]:
-                pos_x += right[0]
-                pos_y += right[1]
-                pos_z += right[2]
-            if keys[pygame.K_SPACE]:
-                pos_y += up[1]
-            if keys[pygame.K_c]:
-                pos_y -= up[1]
-
-        # Camera movement
-        camera_angle_speed = 0.00000005
-        if keys[pygame.K_LCTRL]:
-            rotation_matrix = np.eye(3)
-            if keys[pygame.K_LEFT]:
-                rotation_matrix = np.array([[math.cos(camera_angle_speed), 0, math.sin(camera_angle_speed)],
-                                            [0, 1, 0],
-                                            [-math.sin(camera_angle_speed), 0, math.cos(camera_angle_speed)]])
-                camera_roatating = True
-            if keys[pygame.K_RIGHT]:
-                rotation_matrix = np.array([[math.cos(-camera_angle_speed), 0, math.sin(-camera_angle_speed)],
-                                            [0, 1, 0],
-                                            [-math.sin(-camera_angle_speed), 0, math.cos(-camera_angle_speed)]])
-                camera_roatating = True
-            if keys[pygame.K_UP]:
-                rotation_matrix = np.array([[1, 0, 0],
-                                            [0, math.cos(camera_angle_speed), -math.sin(camera_angle_speed)],
-                                            [0, math.sin(camera_angle_speed), math.cos(camera_angle_speed)]])
-                camera_roatating = True
-            if keys[pygame.K_DOWN]:
-                rotation_matrix = np.array([[1, 0, 0],
-                                            [0, math.cos(-camera_angle_speed), -math.sin(-camera_angle_speed)],
-                                            [0, math.sin(-camera_angle_speed), math.cos(-camera_angle_speed)]])
-                camera_roatating = True
-            if camera_roatating:
-                camera_front = np.dot(rotation_matrix, camera_front)
-                camera_movement(camera_position)
+        cam.update(keys)
 
         screen.fill(BLACK)
         pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
- 
-        # Previous position
-        prevous_x, prevous_y, prevous_z = pos_x, pos_y, pos_z
 
-        # Check for collisions
-        if collisions_on:
-            for obj_name1, obj1 in DICT.items():
-                for obj_name2, obj2 in DICT.items():
-                    if obj_name1 != obj_name2 and obj1['collision'] and obj2['collision']:
-                        if check_collision(obj1['object_class'], obj2['object_class']):
-                            # Reset position of the colliding objects
-                            obj1['object_class'].update_object(obj1['object_class'].vertices, obj1['object_class'].edges, obj1['object_class'].faces, obj1['object_class'].pivot)
-                            obj2['object_class'].update_object(obj2['object_class'].vertices, obj2['object_class'].edges, obj2['object_class'].faces, obj2['object_class'].pivot)
-                            # Reset position of moving objects
-                            if obj1['move'] or obj2['move']:
-                                pos_x, pos_y, pos_z = -1.1 * prevous_x, -1.1 * prevous_y, -1.1 * prevous_z
+        # Get all faces to render
+        all_vertices, all_faces = get_all_faces()
 
-        all_vertices = []
-        all_faces = []
-        vertex_offset = 0
-        for obj_name, obj in DICT.items():
-            if obj['render']:
-                obj_class = obj['object_class']
-                if obj['move']:
-                    calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z, prevous_x, prevous_y, prevous_z)
-                all_vertices += obj_class.vertices
-                for face in obj_class.faces:
-                    vertices_indices, color = face
-                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                    all_faces.append((adjusted_indices, color))
-                vertex_offset += len(obj_class.vertices)
-        
+        # Transform vertices based on camera position and rotation
+        transformed_vertices = cam.transform(all_vertices)
+
         # Sort faces by dot product with camera's front vector
-        sorted_faces = sort_high_to_low(all_vertices, all_faces, camera_position, camera_front)
+        sorted_faces = sort_high_to_low(transformed_vertices, all_faces)
+        
+        # Calculate aspect ratio
+        aspect_ratio = pygame.display.get_surface().get_width() / pygame.display.get_surface().get_height()
 
         # Draw all faces
-        draw_faces(all_vertices, sorted_faces)
+        draw_faces(transformed_vertices, sorted_faces, aspect_ratio)
 
         # See FPS
         fps = str(int(clock.get_fps()))
@@ -353,7 +303,7 @@ def main():
 
         pygame.display.flip()
         clock.tick(60)
-
+        
     pygame.quit()
 
 if __name__ == "__main__":
