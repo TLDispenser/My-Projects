@@ -199,7 +199,9 @@ def sort_high_to_low(all_vertices, all_faces):
             if all(0 <= index < len(all_vertices) for index in vertices_indices):
                 # Calculate the average depth of the face
                 depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
-                sorted_faces.append((depth, face))
+                # Check if the face is within the render distance
+                if 0 < depth < RENDER_DISTANCE:
+                    sorted_faces.append((depth, face))
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
