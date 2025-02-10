@@ -3,7 +3,7 @@ import sys
 import math
 import numpy as np
 import pygame.gfxdraw
-
+# TRY TO USE https://pyglet.org/
 # models
 print("Importing models.... (Might take a while)")
 from model import MODLES
