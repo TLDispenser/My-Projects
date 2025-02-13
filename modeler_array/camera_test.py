@@ -1,9 +1,9 @@
 import pygame
 import sys
 import math
-import numpy as np
 import pygame.gfxdraw
-# TRY TO USE https://pyglet.org/
+# pyglet instead of pygame
+
 # models
 print("Importing models.... (Might take a while)")
 from model import MODLES
@@ -25,7 +25,7 @@ BLACK = (0, 0, 0)
 # Darkening effect
 DARKENING_FACTOR = 50
 # Rendering distance
-RENDER_DISTANCE = 30
+RENDER_DISTANCE = 60
 
 
 class Object:
@@ -73,7 +73,7 @@ DICT = {
         'render': False,
         'move': False,
         'collision': False,
-        'start_pos': (-3, 0, 0)
+        'start_pos': (-5, 0, 0)
     },
     'octahedron': {
         'object_class': Object('octahedron'),
@@ -97,12 +97,15 @@ class Cam:
             self.rot[1] += x
 
     def update(self, key):
-        s = .1
+        if key[pygame.K_LSHIFT]:
+            s = .5
+        else:
+            s = .1
 
         if key[pygame.K_c]:
-            self.pos[1] += s
-        if key[pygame.K_SPACE]:
             self.pos[1] -= s
+        if key[pygame.K_SPACE]:
+            self.pos[1] += s
 
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
  
@@ -217,6 +220,16 @@ def check_collision(obj1, obj2):
             min_y1 <= max_y2 and max_y1 >= min_y2 and
             min_z1 <= max_z2 and max_z1 >= min_z2)
 
+def texturing(screen, darkened_color, points):
+    pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
+    for p in range(len(points)):
+        # Black outline
+        pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
+        
+        
+    
+
+
 def draw_faces(all_vertices, sorted_faces, aspect_ratio):
     for depth, face in sorted_faces:
         vertices_indices, color = face
@@ -229,7 +242,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         try:
             vertices_indices[0] = float(vertices_indices[0])
             if isinstance(vertices_indices[0], float):
-                pygame.draw.polygon(screen, darkened_color, points)
+                texturing(screen, darkened_color, points)
         except Exception:
             print(f"Error drawing polygon with points: {points}")
 
