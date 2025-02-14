@@ -84,7 +84,7 @@ DICT = {
         'start_pos': (3, 0, 0)
     },
     'mountains': {
-        'object_class': Object(BOB, 'mount'),
+        'object_class': Object(BOB, 'custom_model'),
         'render': True,
         'move': True,
         'collision': False,
@@ -116,8 +116,7 @@ class Cam:
             self.pos[1] += s
 
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
- 
-        
+
         if self.rot[0] <= -1.58:
             self.rot[0] = -1.58
 
@@ -144,6 +143,7 @@ class Cam:
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
+        cos_x, sin_x = math.cos(self.rot[0]), math.sin(self.rot[0])
         for x, y, z in vertices:
             x -= self.pos[0]
             y -= self.pos[1]
@@ -152,8 +152,8 @@ class Cam:
             # Rotate around y-axis
             x, z = x * cos_y - z * sin_y, x * sin_y + z * cos_y
 
-            # Apply vertical rotation (up and down) by adjusting y position
-            y -= self.rot[0] * 4  # Adjust the multiplier to control the vertical movement speed
+            # Rotate around x-axis
+            y, z = y * cos_x - z * sin_x, y * sin_x + z * cos_x
 
             transformed_vertices.append((x, y, z))
         return transformed_vertices
@@ -211,7 +211,7 @@ def sort_high_to_low(all_vertices, all_faces):
                 # Calculate the average depth of the face
                 depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
                 # Check if the face is within the render distance
-                if -3 < depth < RENDER_DISTANCE:
+                if 1 < depth < RENDER_DISTANCE:
                     sorted_faces.append((depth, face))
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
@@ -232,7 +232,7 @@ def texturing(screen, darkened_color, points):
     pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
     #for p in range(len(points)):
         # Black outline
-        #pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
+       # pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
         
         
     
@@ -248,11 +248,9 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         darkened_color = tuple(int(c * darken_factor) for c in color)
         
         try:
-            vertices_indices[0] = float(vertices_indices[0])
-            if isinstance(vertices_indices[0], float):
-                texturing(screen, darkened_color, points)
-        except Exception:
-            print(f"Error drawing polygon with points: {points}")
+            texturing(screen, darkened_color, points)
+        except Exception as e:
+            print(f"Error drawing polygon with points: {points}, error: {e}")
 
 def get_all_faces():
     all_vertices = []
