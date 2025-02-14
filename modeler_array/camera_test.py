@@ -7,6 +7,7 @@ import pygame.gfxdraw
 # models
 print("Importing models.... (Might take a while)")
 from model import MODLES
+from custom_model import BOB
 print("DONE!")
 # models
 
@@ -30,12 +31,12 @@ RENDER_DISTANCE = 60
 
 class Object:
     # Initialize vertices, edges, and faces
-    def __init__(self, shape):
+    def __init__(self, froms, shape):
         print("intializing object: " + shape)
-        self.vertices = MODLES[shape]["vertices"]
-        self.edges = MODLES[shape]["edges"]
-        self.faces = MODLES[shape]["faces"]
-        self.pivot = MODLES[shape]["pivot"]
+        self.vertices = froms[shape]["vertices"]
+        self.edges = froms[shape]["edges"]
+        self.faces = froms[shape]["faces"]
+        self.pivot = froms[shape]["pivot"]
         self.get_bounding_box()
 
     def __str__(self):
@@ -62,26 +63,33 @@ class Object:
 # Dictionary of objects
 DICT = {
     'square': {
-        'object_class': Object('square'),
-        'render': True,
-        'move': True,
-        'collision': True,
+        'object_class': Object(MODLES, 'square'),
+        'render': False,
+        'move': False,
+        'collision': False,
         'start_pos': (0, 0, 0)
     },
     'bulbasaur': {
-        'object_class': Object('bulbasaur'),
+        'object_class': Object(MODLES, 'bulbasaur'),
         'render': False,
         'move': False,
         'collision': False,
         'start_pos': (-5, 0, 0)
     },
     'octahedron': {
-        'object_class': Object('octahedron'),
-        'render': True,
+        'object_class': Object(MODLES, 'octahedron'),
+        'render': False,
         'move': False,
-        'collision': True,
+        'collision': False,
         'start_pos': (3, 0, 0)
-    }
+    },
+    'mountains': {
+        'object_class': Object(BOB, 'mount'),
+        'render': True,
+        'move': True,
+        'collision': False,
+        'start_pos': (0, 0, 0)
+    },
 }
 class Cam:
     def __init__(self, pos):
@@ -222,9 +230,9 @@ def check_collision(obj1, obj2):
 
 def texturing(screen, darkened_color, points):
     pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
-    for p in range(len(points)):
+    #for p in range(len(points)):
         # Black outline
-        pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
+        #pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
         
         
     
