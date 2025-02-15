@@ -2,7 +2,6 @@ import pygame
 import sys
 import math
 import pygame.gfxdraw
-# pyglet instead of pygame
 
 # models
 print("Importing models.... (Might take a while)")
@@ -84,11 +83,18 @@ DICT = {
         'start_pos': (3, 0, 0)
     },
     'mountains': {
-        'object_class': Object(BOB, 'custom_model'),
+        'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
         'collision': False,
         'start_pos': (0, 0, 0)
+    },
+    'mountains2': {
+        'object_class': Object(BOB, 'mount'),
+        'render': True,
+        'move': True,
+        'collision': False,
+        'start_pos': (50, 0, 0)
     },
 }
 class Cam:
@@ -204,15 +210,17 @@ def calculate_position(obj_class, angle_x, angle_y, angle_z, pos_x, pos_y, pos_z
 def sort_high_to_low(all_vertices, all_faces):
     sorted_faces = []
     for face in all_faces:
-        vertices_indices, color = face
+        vertices_indices = face[0]
         try:
             # Ensure indices are within range
             if all(0 <= index < len(all_vertices) for index in vertices_indices):
                 # Calculate the average depth of the face
-                depth = sum(all_vertices[index][2] for index in vertices_indices) / len(vertices_indices)
-                # Check if the face is within the render distance
-                if 1 < depth < RENDER_DISTANCE:
-                    sorted_faces.append((depth, face))
+                depths = [all_vertices[index][2] for index in vertices_indices]
+                avg_depth = sum(depths) / len(vertices_indices)
+                
+                # Check if all vertices are in front of the camera
+                if all(0 < depth < RENDER_DISTANCE for depth in depths):
+                    sorted_faces.append((avg_depth, face))
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
@@ -319,9 +327,15 @@ def main():
         # See FPS
         fps = str(int(clock.get_fps()))
         font = pygame.font.SysFont('Arial', 30)
-        fpssurface = font.render(fps, False, (255, 255, 255))
+        fpssurface = font.render(fps, False, WHITE)
         screen.blit(fpssurface, (0, 0))
 
+        # See position
+        pos = str(cam.pos)
+        font = pygame.font.SysFont('Arial', 30)
+        possurface = font.render(pos, False, WHITE)
+        screen.blit(possurface, (0, 30))
+        
         pygame.display.flip()
         clock.tick(60)
         
