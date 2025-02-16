@@ -354,7 +354,7 @@ def main():
         sort_surface = font.render(f"Sort Time: {sort_time:.4f} s", False, WHITE)
         screen.blit(sort_surface, (0, 150))
         draw_faces_surface = font.render(f"Draw Faces Time: {draw_faces_time:.4f} s", False, WHITE)
-        screen.blit(draw_faces_surface, (0, 210))
+        screen.blit(draw_faces_surface, (0, 180))
 
         # Display processing time
         font = pygame.font.SysFont('Arial', 30)
