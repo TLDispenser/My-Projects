@@ -2,6 +2,8 @@ import pygame
 import sys
 import math
 import pygame.gfxdraw
+import numpy as np #MAKES IT SLOWER!!!
+import time
 
 # models
 print("Importing models.... (Might take a while)")
@@ -25,7 +27,10 @@ BLACK = (0, 0, 0)
 # Darkening effect
 DARKENING_FACTOR = 50
 # Rendering distance
-RENDER_DISTANCE = 60
+RENDER_DISTANCE_FAR = 50
+RENDER_DISTANCE_BEHIND = 0
+RENDER_DISTANCE_RIGHT = 40
+RENDER_DISTANCE_LEFT = -RENDER_DISTANCE_RIGHT
 
 
 class Object:
@@ -87,14 +92,14 @@ DICT = {
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (0, 0, 0)
+        'start_pos': (-79, 0, 0)
     },
     'mountains2': {
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (50, 0, 0)
+        'start_pos': (80, 0, 0)
     },
 }
 class Cam:
@@ -217,15 +222,20 @@ def sort_high_to_low(all_vertices, all_faces):
                 # Calculate the average depth of the face
                 depths = [all_vertices[index][2] for index in vertices_indices]
                 avg_depth = sum(depths) / len(vertices_indices)
-                
-                # Check if all vertices are in front of the camera
-                if all(0 < depth < RENDER_DISTANCE for depth in depths):
+            
+                # Check if all vertices are within the render distance and bounds FAR BEHIND RIGHT LEFT
+                if all(RENDER_DISTANCE_BEHIND < depth < RENDER_DISTANCE_FAR for depth in depths) and \
+                   all(RENDER_DISTANCE_LEFT < all_vertices[index][0] < RENDER_DISTANCE_RIGHT for index in vertices_indices):
+                       
                     sorted_faces.append((avg_depth, face))
+        
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
     # Sort faces by depth in descending order
     sorted_faces.sort(key=lambda x: x[0], reverse=True)
+    # Funny break of the source code from numpy because I gave a tuple instead of a list
+    #np.sort(sorted_faces, axis=0)-np.sort(-sorted_faces, axis=0)
     return sorted_faces
 
 def check_collision(obj1, obj2):
@@ -241,8 +251,6 @@ def texturing(screen, darkened_color, points):
     #for p in range(len(points)):
         # Black outline
        # pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
-        
-        
     
 
 
@@ -269,6 +277,7 @@ def get_all_faces():
             obj_class = obj['object_class']
             all_vertices += obj_class.vertices
             for face in obj_class.faces:
+                # FUTURE ME NOTE: Maybe I can add the colosion check here to moving the object?
                 vertices_indices, color = face
                 adjusted_indices = [index + vertex_offset for index in vertices_indices]
                 all_faces.append((adjusted_indices, color))
@@ -293,6 +302,7 @@ def main():
         calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'])
 
     while running:
+        start_time = time.time()
         # Single input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -307,22 +317,49 @@ def main():
         cam.update(keys)
 
         screen.fill(BLACK)
-        pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
 
         # Get all faces to render
+        func_start_time = time.time()
         all_vertices, all_faces = get_all_faces()
+        get_all_faces_time = time.time() - func_start_time
 
         # Transform vertices based on camera position and rotation
+        func_start_time = time.time()
         transformed_vertices = cam.transform(all_vertices)
+        transform_time = time.time() - func_start_time
 
         # Sort faces by dot product with camera's front vector
+        func_start_time = time.time()
         sorted_faces = sort_high_to_low(transformed_vertices, all_faces)
+        sort_time = time.time() - func_start_time
         
         # Calculate aspect ratio
         aspect_ratio = pygame.display.get_surface().get_width() / pygame.display.get_surface().get_height()
 
         # Draw all faces
+        func_start_time = time.time()
         draw_faces(transformed_vertices, sorted_faces, aspect_ratio)
+        draw_faces_time = time.time() - func_start_time
+
+        end_time = time.time()
+        processing_time = end_time - start_time
+
+        # Display individual function processing times
+        font = pygame.font.SysFont('Arial', 20)
+        get_all_faces_surface = font.render(f"Get All Faces Time: {get_all_faces_time:.4f} s", False, WHITE)
+        screen.blit(get_all_faces_surface, (0, 90))
+        transform_surface = font.render(f"Transform Time: {transform_time:.4f} s", False, WHITE)
+        screen.blit(transform_surface, (0, 120))
+        sort_surface = font.render(f"Sort Time: {sort_time:.4f} s", False, WHITE)
+        screen.blit(sort_surface, (0, 150))
+        draw_faces_surface = font.render(f"Draw Faces Time: {draw_faces_time:.4f} s", False, WHITE)
+        screen.blit(draw_faces_surface, (0, 210))
+
+        # Display processing time
+        font = pygame.font.SysFont('Arial', 30)
+        processing_time_surface = font.render(f"Processing Time: {processing_time:.4f} s", False, WHITE)
+        screen.blit(processing_time_surface, (0, 60))
 
         # See FPS
         fps = str(int(clock.get_fps()))
