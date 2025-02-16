@@ -29,7 +29,7 @@ BLACK = (0, 0, 0)
 # Darkening effect
 DARKENING_FACTOR = 50
 # Rendering distance
-RENDER_DISTANCE_FAR = 50
+RENDER_DISTANCE_FAR = DARKENING_FACTOR
 RENDER_DISTANCE_BEHIND = 0
 RENDER_DISTANCE_RIGHT = 40
 RENDER_DISTANCE_LEFT = -RENDER_DISTANCE_RIGHT
@@ -109,7 +109,7 @@ class Cam:
         self.pos = list(pos)
         self.rot = [0, 0]
 
-    def events(self, event):
+    def mouse_event(self, event):
         if event.type == pygame.MOUSEMOTION:
             x, y = event.rel
             x /= 200
@@ -218,21 +218,21 @@ def sort_high_to_low(all_vertices, all_faces):
     sorted_faces = []
     for face in all_faces:
         vertices_indices = face[0]
-        try:
-            # Ensure indices are within range
-            if all(0 <= index < len(all_vertices) for index in vertices_indices):
-                # Calculate the average depth of the face
-                depths = [all_vertices[index][2] for index in vertices_indices]
-                avg_depth = sum(depths) / len(vertices_indices)
-            
-                # Check if all vertices are within the render distance and bounds FAR BEHIND RIGHT LEFT
-                if all(RENDER_DISTANCE_BEHIND < depth < RENDER_DISTANCE_FAR for depth in depths) and \
-                   all(RENDER_DISTANCE_LEFT < all_vertices[index][0] < RENDER_DISTANCE_RIGHT for index in vertices_indices):
-                       
-                    sorted_faces.append((avg_depth, face))
+        #try:
+        # Calculate the average depth of the face
+        depths = [all_vertices[index][2] for index in vertices_indices]
+        avg_depth = sum(depths) / len(vertices_indices)
+
         
-        except IndexError:
-            print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
+        # Check if all vertices are within the render distance and bounds FAR BEHIND RIGHT LEFT
+        if all(RENDER_DISTANCE_BEHIND < depth < RENDER_DISTANCE_FAR for depth in depths) and \
+            all(RENDER_DISTANCE_LEFT < all_vertices[index][0] < RENDER_DISTANCE_RIGHT for index in vertices_indices):
+                
+            sorted_faces.append((avg_depth, face))
+        
+        
+        #except IndexError:
+        #    print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
     # NOT THE SLOW THING
     # Sort faces by depth in descending order
@@ -240,6 +240,8 @@ def sort_high_to_low(all_vertices, all_faces):
     # Funny break of the source code from numpy because I gave a tuple instead of a list
     #np.sort(sorted_faces, axis=0)-np.sort(-sorted_faces, axis=0)
     return sorted_faces
+
+
 
 def check_collision(obj1, obj2):
     (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
@@ -276,16 +278,16 @@ def get_all_faces():
     all_vertices = []
     all_faces = []
     vertex_offset = 0
-    for obj_name, obj in DICT.items():
+    for obj in DICT.values():
         if obj['render']:
             obj_class = obj['object_class']
-            all_vertices += obj_class.vertices
+            vertices = obj_class.vertices
+            all_vertices.extend(vertices)
             for face in obj_class.faces:
-                # FUTURE ME NOTE: Maybe I can add the colosion check here to moving the object?
                 vertices_indices, color = face
                 adjusted_indices = [index + vertex_offset for index in vertices_indices]
                 all_faces.append((adjusted_indices, color))
-            vertex_offset += len(obj_class.vertices)
+            vertex_offset += len(vertices)
     return all_vertices, all_faces
 
 def main():
@@ -315,11 +317,13 @@ def main():
                 global WIDTH, HEIGHT
                 WIDTH, HEIGHT = event.size
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-            cam.events(event)
+            cam.mouse_event(event)
         
+
         keys = pygame.key.get_pressed()
         cam.update(keys)
 
+        
         screen.fill(BLACK)
         #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
 
@@ -359,7 +363,8 @@ def main():
         screen.blit(sort_surface, (0, 150))
         draw_faces_surface = font.render(f"Draw Faces + Textures Time: {draw_faces_time:.4f} s", False, WHITE)
         screen.blit(draw_faces_surface, (0, 180))
-
+        
+        
         # Display processing time
         font = pygame.font.SysFont('Arial', 30)
         processing_time_surface = font.render(f"Processing Time: {processing_time:.4f} s", False, WHITE)
@@ -378,10 +383,10 @@ def main():
         screen.blit(possurface, (0, 30))
         
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(30)
         
     pygame.quit()
 
 if __name__ == "__main__":
-    cProfile.run("main()")
-    #main()
+    #cProfile.run("main()")
+    main()
