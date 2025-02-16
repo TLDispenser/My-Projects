@@ -4,6 +4,8 @@ import math
 import pygame.gfxdraw
 import numpy as np #MAKES IT SLOWER!!!
 import time
+import cProfile
+
 
 # models
 print("Importing models.... (Might take a while)")
@@ -232,6 +234,7 @@ def sort_high_to_low(all_vertices, all_faces):
         except IndexError:
             print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
     
+    # NOT THE SLOW THING
     # Sort faces by depth in descending order
     sorted_faces.sort(key=lambda x: x[0], reverse=True)
     # Funny break of the source code from numpy because I gave a tuple instead of a list
@@ -267,6 +270,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
             texturing(screen, darkened_color, points)
         except Exception as e:
             print(f"Error drawing polygon with points: {points}, error: {e}")
+            
 
 def get_all_faces():
     all_vertices = []
@@ -353,7 +357,7 @@ def main():
         screen.blit(transform_surface, (0, 120))
         sort_surface = font.render(f"Sort Time: {sort_time:.4f} s", False, WHITE)
         screen.blit(sort_surface, (0, 150))
-        draw_faces_surface = font.render(f"Draw Faces Time: {draw_faces_time:.4f} s", False, WHITE)
+        draw_faces_surface = font.render(f"Draw Faces + Textures Time: {draw_faces_time:.4f} s", False, WHITE)
         screen.blit(draw_faces_surface, (0, 180))
 
         # Display processing time
@@ -379,4 +383,5 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    cProfile.run("main()")
+    #main()
