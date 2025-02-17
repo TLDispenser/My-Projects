@@ -221,9 +221,9 @@ def sort_high_to_low(all_vertices, all_faces):
         depths = [all_vertices[index][2] for index in vertices_indices]
         avg_depth = sum(depths) / len(vertices_indices)
 
-        if all(RENDER_DISTANCE_BEHIND < depth < RENDER_DISTANCE_FAR for depth in depths)  and \
-           all_vertices[vertices_indices[0]][0] > RENDER_DISTANCE_LEFT and \
-           all_vertices[vertices_indices[0]][0] < RENDER_DISTANCE_RIGHT:
+        if RENDER_DISTANCE_BEHIND < min(depths) < RENDER_DISTANCE_FAR and \
+           RENDER_DISTANCE_BEHIND < max(depths) < RENDER_DISTANCE_FAR and \
+           RENDER_DISTANCE_LEFT < all_vertices[vertices_indices[0]][0] < RENDER_DISTANCE_RIGHT:
             sorted_faces.append((avg_depth, face))
 
     sorted_faces.sort(reverse=True, key=lambda x: x[0])
