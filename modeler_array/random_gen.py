@@ -1,11 +1,11 @@
 import random
-
+chance_of_hills = 35
 max_height = 10
 min_height = 1
-max_width = 100
-min_width = -100
-max_length = 100
-min_length = -100
+max_width = 75
+min_width = -max_width
+max_length = 75
+min_length = -max_length
 
 generate_model_after = {
     'hills': {
@@ -27,7 +27,7 @@ def custom_random_height():
     # Generate a random number between 0 and 1
     r = random.random()
     # Raise the random number to the power of 3 to skew the distribution towards lower values
-    return min_height + (max_height - min_height) * (r ** 100)
+    return min_height + (max_height - min_height) * (r ** chance_of_hills)
 
 def generate_hills_vertices():
     for i in range(min_width, max_width):
