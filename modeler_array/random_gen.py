@@ -42,7 +42,7 @@ def generate_hills_faces():
             v2 = (i - min_width + 1) + (j - min_length) * (max_width - min_width)
             v3 = (i - min_width + 1) + (j - min_length + 1) * (max_width - min_width)
             v4 = (i - min_width) + (j - min_length + 1) * (max_width - min_width)
-            generate_model_after['hills']['faces'].append(([v1, v2, v3, v4], (255, 255, 255)))
+            generate_model_after['hills']['faces'].append(([v1, v2, v3, v4], (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))))
 
 generate_hills_vertices()
 generate_hills_faces()
