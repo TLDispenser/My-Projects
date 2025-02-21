@@ -267,9 +267,9 @@ def check_collision(obj1, obj2):
 
 def texturing(screen, darkened_color, points):
     pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
-    #for p in range(len(points)):
-        # Black outline
-       # pygame.gfxdraw.line(screen, points[p][0], points[p][1], points[(p + 1) % len(points)][0], points[(p + 1) % len(points)][1], (0, 0, 0))
+    # Black outline
+    pygame.gfxdraw.aapolygon(screen, points, (0, 0, 0))
+
     
 
 
