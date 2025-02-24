@@ -19,6 +19,7 @@ pygame.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
+fullscreen = False
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("3D Rendering Engine")
 
@@ -26,7 +27,7 @@ pygame.display.set_caption("3D Rendering Engine")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-# Darkening effect
+# Darkening effect higher value = less darkening
 DARKENING_FACTOR = 50
 # Rendering distance
 RENDER_DISTANCE_FAR = DARKENING_FACTOR
@@ -66,6 +67,7 @@ class Object:
         self.edges = edges
         self.faces = faces
         self.pivot = pivot
+    
 # Dictionary of objects
 DICT = {
     'square': {
@@ -94,14 +96,14 @@ DICT = {
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (-79, 0, 0)
+        'start_pos': (-79, -6, 0)
     },
     'mountains2': {
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (80, 0, 0)
+        'start_pos': (80, -6, 0)
     },
 }
 class Cam:
@@ -116,13 +118,17 @@ class Cam:
             y /= 200
             self.rot[0] -= y
             self.rot[1] += x
-
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            None
+        if event.type == pygame.MOUSEBUTTONUP:
+            None
+            
     def update(self, key):
         if key[pygame.K_LSHIFT]:
             s = .5
         else:
             s = .1
-
+        # Camera movement z
         if key[pygame.K_c]:
             self.pos[1] -= s
         if key[pygame.K_SPACE]:
@@ -130,12 +136,14 @@ class Cam:
 
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
 
+        # Checks to see if the camera is within the bounds of rotation 
         if self.rot[0] <= -1.58:
             self.rot[0] = -1.58
 
         if self.rot[0] >= 1.58:
             self.rot[0] = 1.58
 
+        # Camera movement x, y
         if key[pygame.K_w]:
             self.pos[0] += x
             self.pos[2] += y
@@ -148,11 +156,31 @@ class Cam:
         if key[pygame.K_d]:
             self.pos[0] += y
             self.pos[2] -= x
+        
+        # Camera rotation
+        if key[pygame.K_UP]:
+            self.rot[0] += 0.1
+        if key[pygame.K_DOWN]:
+            self.rot[0] -= 0.1
+        if key[pygame.K_LEFT]:
+            self.rot[1] -= 0.1
+        if key[pygame.K_RIGHT]:
+            self.rot[1] += 0.1
 
         if key[pygame.K_ESCAPE]:
             pygame.quit()
             sys.exit()  # Quits Game
-
+        if key[pygame.K_f]:
+            global fullscreen
+            if not fullscreen:
+                pygame.display.quit
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+                fullscreen = True
+            else:
+                pygame.display.quit
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+                fullscreen = False
+        
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
@@ -268,7 +296,7 @@ def check_collision(obj1, obj2):
 def texturing(screen, darkened_color, points):
     pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
     # Black outline
-    pygame.gfxdraw.aapolygon(screen, points, (0, 0, 0))
+    #pygame.gfxdraw.aapolygon(screen, points, (0, 0, 0))
 
     
 
@@ -289,6 +317,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
             
 
 def get_all_faces():
+    # WHEN HAVING MORE THAN ONE MODLE CHANGE THIS SO IT CHECKS FIRST IF THE MODLE IS IN RANGE
     all_vertices = []
     all_faces = []
     vertex_offset = 0
