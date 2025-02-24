@@ -77,6 +77,7 @@ class Object:
 # Dictionary of objects
 DICT = {
     'square': {
+        'type': 'player',
         'object_class': Object(MODLES, 'square'),
         'render': True,
         'move': True,
@@ -85,6 +86,7 @@ DICT = {
         'scale': 1
     },
     'bulbasaur': {
+        'type': 'player',
         'object_class': Object(MODLES, 'bulbasaur'),
         'render': False,
         'move': False,
@@ -93,6 +95,7 @@ DICT = {
         'scale': 1
     },
     'octahedron': {
+        'type': 'player',
         'object_class': Object(MODLES, 'octahedron'),
         'render': False,
         'move': False,
@@ -101,6 +104,7 @@ DICT = {
         'scale': 1
     },
     'mountains': {
+        'type': 'terrain',
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
@@ -109,6 +113,7 @@ DICT = {
         'scale': 1
     },
     'mountains2': {
+        'type': 'terrain',
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
