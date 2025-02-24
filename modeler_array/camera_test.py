@@ -39,6 +39,7 @@ RENDER_DISTANCE_LEFT = -RENDER_DISTANCE_RIGHT
 class Object:
     # Initialize vertices, edges, and faces
     def __init__(self, froms, shape):
+        self.name = shape
         print("intializing object: " + shape)
         self.vertices = froms[shape]["vertices"]
         self.edges = froms[shape]["edges"]
@@ -62,6 +63,11 @@ class Object:
         self.bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
         return self.bounding_box
 
+    def scale(self, scale):
+        for i in range(len(self.vertices)):
+            self.vertices[i] = (self.vertices[i][0] * scale, self.vertices[i][1] * scale, self.vertices[i][2] * scale)
+        self.get_bounding_box()
+        
     def update_object(self, vertices, edges, faces, pivot):
         self.vertices = vertices
         self.edges = edges
@@ -72,38 +78,43 @@ class Object:
 DICT = {
     'square': {
         'object_class': Object(MODLES, 'square'),
-        'render': False,
-        'move': False,
-        'collision': False,
-        'start_pos': (0, 0, 0)
+        'render': True,
+        'move': True,
+        'collision': True,
+        'start_pos': (0, 0, 0),
+        'scale': 1
     },
     'bulbasaur': {
         'object_class': Object(MODLES, 'bulbasaur'),
         'render': False,
         'move': False,
         'collision': False,
-        'start_pos': (-5, 0, 0)
+        'start_pos': (-5, 0, 0),
+        'scale': 1
     },
     'octahedron': {
         'object_class': Object(MODLES, 'octahedron'),
         'render': False,
         'move': False,
         'collision': False,
-        'start_pos': (3, 0, 0)
+        'start_pos': (3, 0, 0),
+        'scale': 1
     },
     'mountains': {
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (-79, -6, 0)
+        'start_pos': (-79, -6, 0),
+        'scale': 1
     },
     'mountains2': {
         'object_class': Object(BOB, 'mount'),
         'render': True,
         'move': True,
         'collision': False,
-        'start_pos': (80, -6, 0)
+        'start_pos': (80, -6, 0),
+        'scale': 1
     },
 }
 class Cam:
@@ -180,7 +191,6 @@ class Cam:
                 pygame.display.quit
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
                 fullscreen = False
-        
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
@@ -348,6 +358,7 @@ def main():
     
     # Updates the start position of the objects
     for obj_name, obj in DICT.items():
+        Object.scale(obj['object_class'], obj['scale'])
         calculate_position(obj['object_class'], 0, 0, 0, *obj['start_pos'])
 
     while running:
