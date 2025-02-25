@@ -11,6 +11,7 @@ import cProfile
 print("Importing models.... (Might take a while)")
 from model import MODLES
 from custom_model import BOB
+from random_gen import generate_model_after
 print("DONE!")
 # models
 
@@ -121,12 +122,24 @@ DICT = {
         'start_pos': (80, -6, 0),
         'scale': 1
     },
+    'gen_modle': {
+        'type': 'terrain',
+        'object_class': Object(generate_model_after, 'hills'),
+        'render': True,
+        'move': True,
+        'collision': True,
+        'start_pos': (0, -2, -150),
+        'scale': 1
+    },
 }
 class Cam:
     def __init__(self, pos):
         self.pos = list(pos)
         self.rot = [0, 0]
 
+    def camera_boundingbox(self):
+        self.hitbox = (-1, 1), (-1, 1), (-1, 1)
+        
     def mouse_event(self, event):
         if event.type == pygame.MOUSEMOTION:
             x, y = event.rel
@@ -309,9 +322,16 @@ def check_collision(obj1, obj2):
             min_z1 <= max_z2 and max_z1 >= min_z2)
 
 def texturing(screen, darkened_color, points):
-    pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
+    #pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
+    
+    # Weird half arks
+    pygame.gfxdraw.bezier(screen, points, 2, darkened_color)
+    # Connect the dots 
+    #pygame.gfxdraw.circle(screen, points[0][0], points[0][1], 2, WHITE)
     # Black outline
     #pygame.gfxdraw.aapolygon(screen, points, (0, 0, 0))
+    # Color outling
+    #pygame.gfxdraw.trigon(screen, points[0][0], points[0][1], points[1][0], points[1][1], points[2][0], points[2][1], darkened_color)
 
     
 
@@ -324,15 +344,14 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
         # Darken the color based on depth
         darken_factor = max(0, min(1, 1 - depth / DARKENING_FACTOR))  # Adjust the divisor to control the darkening effect
         darkened_color = tuple(int(c * darken_factor) for c in color)
-        
-        try:
-            texturing(screen, darkened_color, points)
-        except Exception as e:
-            print(f"Error drawing polygon with points: {points}, error: {e}")
+        if darkened_color[0] > 0 and darkened_color[1] > 0 and darkened_color[2] > 0:
+            try:
+                texturing(screen, darkened_color, points)
+            except Exception as e:
+                print(f"Error drawing polygon with points: {points}, error: {e}")
             
 
-def get_all_faces():
-    # WHEN HAVING MORE THAN ONE MODLE CHANGE THIS SO IT CHECKS FIRST IF THE MODLE IS IN RANGE
+def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
     vertex_offset = 0
@@ -388,7 +407,7 @@ def main():
 
         # Get all faces to render
         func_start_time = time.time()
-        all_vertices, all_faces = get_all_faces()
+        all_vertices, all_faces = get_all_faces(cam.pos)
         get_all_faces_time = time.time() - func_start_time
 
         # Transform vertices based on camera position and rotation
@@ -442,7 +461,7 @@ def main():
         screen.blit(possurface, (0, 30))
         
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(1000000)
         
     pygame.quit()
 
