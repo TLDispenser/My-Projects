@@ -3,6 +3,10 @@
 #    STILL MAKE IT SPLIT OBJECTS (only for colision) BUT SORT FACES AND OBJECTS 
 # SO same thing just ither removing the sorting by faces and objects vs just objects 
 
+
+# TRY TO USE HIS THIS IS ARRAYS BUT GPU!! https://cupy.dev/
+
+
 import pygame
 import sys
 import math
