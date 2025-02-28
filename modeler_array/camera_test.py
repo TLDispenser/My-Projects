@@ -1,3 +1,8 @@
+# 2 THINGS I CAN DO:
+#    MAKE IT SPLIT OBJECTS FOR COLISION AND RENDER SO I DONT NEED TO SORT FACES JUST SPLIT OBJECTS AND CHECK TO SEE IF IN RANGE
+#    STILL MAKE IT SPLIT OBJECTS (only for colision) BUT SORT FACES AND OBJECTS 
+# SO same thing just ither removing the sorting by faces and objects vs just objects 
+
 import pygame
 import sys
 import math
@@ -366,6 +371,29 @@ def get_all_faces(cam_pos):
                 all_faces.append((adjusted_indices, color))
             vertex_offset += len(vertices)
     return all_vertices, all_faces
+
+""" TEST WHEN I GET BACK TO MY IDE
+def get_all_faces(cam_pos):
+    all_vertices = []
+    all_faces = []
+    vertex_offset = 0
+    for obj in DICT.values():
+        if obj['render']:
+            obj_class = obj['object_class']
+            (min_x, max_x), (min_y, max_y), (min_z, max_z) = obj_class.get_bounding_box()
+            if (RENDER_DISTANCE_BEHIND < min_z < RENDER_DISTANCE_FAR or RENDER_DISTANCE_BEHIND < max_z < RENDER_DISTANCE_FAR) and \
+               (RENDER_DISTANCE_LEFT < min_x < RENDER_DISTANCE_RIGHT or RENDER_DISTANCE_LEFT < max_x < RENDER_DISTANCE_RIGHT):
+                vertices = obj_class.vertices
+                all_vertices.extend(vertices)
+                for face in obj_class.faces:
+                    vertices_indices, color = face
+                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                    all_faces.append((adjusted_indices, color))
+                vertex_offset += len(vertices)
+    return all_vertices, all_faces
+"""
+
+
 
 def main():
     global screen
