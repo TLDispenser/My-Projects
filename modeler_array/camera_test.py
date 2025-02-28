@@ -294,33 +294,6 @@ def sort_high_to_low(all_vertices, all_faces):
     sorted_faces.sort(reverse=True, key=lambda x: x[0])
     return sorted_faces
 
-"""def sort_high_to_low(all_vertices, all_faces):
-    sorted_faces = []
-    for face in all_faces:
-        vertices_indices = face[0]
-        #try:
-        # Calculate the average depth of the face
-        depths = [all_vertices[index][2] for index in vertices_indices]
-        avg_depth = sum(depths) / len(vertices_indices)
-
-        
-        # Check if all vertices are within the render distance and bounds FAR BEHIND RIGHT LEFT
-        if all(RENDER_DISTANCE_BEHIND < depth < RENDER_DISTANCE_FAR for depth in depths):
-            if all(RENDER_DISTANCE_LEFT < all_vertices[index][0] < RENDER_DISTANCE_RIGHT for index in vertices_indices):
-                
-                sorted_faces.append((avg_depth, face))
-        
-        
-        #except IndexError:
-        #    print(f"One of the indices in {vertices_indices} is out of range for transformed_vertices")
-    
-    # NOT THE SLOW THING
-    # Sort faces by depth in descending order
-    sorted_faces.sort(key=lambda x: x[0], reverse=True)
-    # Funny break of the source code from numpy because I gave a tuple instead of a list
-    #np.sort(sorted_faces, axis=0)-np.sort(-sorted_faces, axis=0)
-    return sorted_faces"""
-
 
 def check_collision(obj1, obj2):
     (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = obj1.get_bounding_box()
@@ -369,7 +342,6 @@ def get_all_faces(cam_pos):
             bounding_box = obj['object_class'].bounding_box
             if bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < bounding_box[0][1] + RENDER_DISTANCE_FAR and \
                bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                print(f"Object {obj['object_class'].name} is within the bounding box.")
                 obj_class = obj['object_class']
                 vertices = obj_class.vertices
                 all_vertices.extend(vertices)
