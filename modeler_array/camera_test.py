@@ -89,8 +89,8 @@ DICT = {
     'square': {
         'type': 'player',
         'object_class': Object(MODLES, 'square'),
-        'render': True,
-        'move': True,
+        'render': False,
+        'move': False,
         'collision': True,
         'start_pos': (0, 0, 0),
         'scale': 1
@@ -331,10 +331,10 @@ def check_collision(obj1, obj2):
             min_z1 <= max_z2 and max_z1 >= min_z2)
 
 def texturing(screen, darkened_color, points):
-    #pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
+    pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
     
     # Weird half arks
-    pygame.gfxdraw.bezier(screen, points, 2, darkened_color)
+    #pygame.gfxdraw.bezier(screen, points, 2, darkened_color)
     # Connect the dots 
     #pygame.gfxdraw.circle(screen, points[0][0], points[0][1], 2, WHITE)
     # Black outline
@@ -358,35 +358,19 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
                 texturing(screen, darkened_color, points)
             except Exception as e:
                 print(f"Error drawing polygon with points: {points}, error: {e}")
-            
 
+buffer = 10
 def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
     vertex_offset = 0
     for obj in DICT.values():
         if obj['render']:
-            obj_class = obj['object_class']
-            vertices = obj_class.vertices
-            all_vertices.extend(vertices)
-            for face in obj_class.faces:
-                vertices_indices, color = face
-                adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                all_faces.append((adjusted_indices, color))
-            vertex_offset += len(vertices)
-    return all_vertices, all_faces
-
-""" TEST WHEN I GET BACK TO MY IDE
-def get_all_faces(cam_pos):
-    all_vertices = []
-    all_faces = []
-    vertex_offset = 0
-    for obj in DICT.values():
-        if obj['render']:
-            obj_class = obj['object_class']
-            (min_x, max_x), (min_y, max_y), (min_z, max_z) = obj_class.get_bounding_box()
-            if (RENDER_DISTANCE_BEHIND < min_z < RENDER_DISTANCE_FAR or RENDER_DISTANCE_BEHIND < max_z < RENDER_DISTANCE_FAR) and \
-               (RENDER_DISTANCE_LEFT < min_x < RENDER_DISTANCE_RIGHT or RENDER_DISTANCE_LEFT < max_x < RENDER_DISTANCE_RIGHT):
+            bounding_box = obj['object_class'].bounding_box
+            if bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < bounding_box[0][1] + RENDER_DISTANCE_FAR and \
+               bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
+                print(f"Object {obj['object_class'].name} is within the bounding box.")
+                obj_class = obj['object_class']
                 vertices = obj_class.vertices
                 all_vertices.extend(vertices)
                 for face in obj_class.faces:
@@ -394,8 +378,9 @@ def get_all_faces(cam_pos):
                     adjusted_indices = [index + vertex_offset for index in vertices_indices]
                     all_faces.append((adjusted_indices, color))
                 vertex_offset += len(vertices)
+    
     return all_vertices, all_faces
-"""
+
 
 
 
@@ -493,7 +478,7 @@ def main():
         screen.blit(possurface, (0, 30))
         
         pygame.display.flip()
-        clock.tick(1000000)
+        clock.tick(60)
         
     pygame.quit()
 
