@@ -4,8 +4,6 @@
 # SO same thing just ither removing the sorting by faces and objects vs just objects 
 
 
-# TRY TO USE HIS THIS IS ARRAYS BUT GPU!! https://cupy.dev/
-
 
 import pygame
 import sys
@@ -45,6 +43,8 @@ RENDER_DISTANCE_BEHIND = 0
 RENDER_DISTANCE_RIGHT = 50
 RENDER_DISTANCE_LEFT = -RENDER_DISTANCE_RIGHT
 
+# % of object to split
+SPLIT_PERCENT = 0.5
 
 class Object:
     # Initialize vertices, edges, and faces
@@ -56,7 +56,10 @@ class Object:
         self.faces = froms[shape]["faces"]
         self.pivot = froms[shape]["pivot"]
         self.get_bounding_box()
+        self.split_objects_each_faces = list(self.split_object_each_face())
+        self.split_objects_smaller_percent = list(self.split_object_smaller_percent())
 
+        
     def __str__(self):
         return f"Object({self.vertices}, {self.edges}, {self.faces}, {self.pivot})"
 
@@ -72,7 +75,39 @@ class Object:
         max_z = max(v[2] for v in self.vertices)
         self.bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
         return self.bounding_box
-
+    
+    def split_object_each_face(self):
+        self.split_objects_each_faces = []
+        for face in self.faces:
+            vertices_indices, color = face
+            vertices = [self.vertices[i] for i in vertices_indices]
+            min_x = min(v[0] for v in vertices)
+            max_x = max(v[0] for v in vertices)
+            min_y = min(v[1] for v in vertices)
+            max_y = max(v[1] for v in vertices)
+            min_z = min(v[2] for v in vertices)
+            max_z = max(v[2] for v in vertices)
+            bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
+            yield vertices, bounding_box
+            self.split_objects_each_faces.append((vertices, bounding_box))
+        return self.split_objects_each_faces
+    
+    
+    # FIX THIS 
+    def split_object_smaller_percent(self):
+        self.split_objects_each_faces = []
+        for big_face in range(len(self.faces), SPLIT_PERCENT):
+            for inbetween_big_face in range(big_face):
+                vertices = [self.vertices[i] for i in big_face[0]]
+                min_x = min(v[0] for v in vertices)
+                max_x = max(v[0] for v in vertices)
+                min_y = min(v[1] for v in vertices)
+                max_y = max(v[1] for v in vertices)
+                min_z = min(v[2] for v in vertices)
+                max_z = max(v[2] for v in vertices)
+                bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
+                yield vertices, bounding_box
+                self.split_objects_smaller_percent.append((vertices, bounding_box))
     def scale(self, scale):
         for i in range(len(self.vertices)):
             self.vertices[i] = (self.vertices[i][0] * scale, self.vertices[i][1] * scale, self.vertices[i][2] * scale)
@@ -218,6 +253,10 @@ class Cam:
                 pygame.display.quit
                 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
                 fullscreen = False
+        if key[pygame.K_p]:
+            for obj_name, obj in DICT.items():
+                print(f"{obj_name} split_objects_each_faces: {len(obj['object_class'].split_objects_each_faces)}")
+                print(f"{obj_name} split_objects_smaller_percent: {len(obj['object_class'].split_objects_smaller_percent)}")
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
