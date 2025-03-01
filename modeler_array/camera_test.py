@@ -77,7 +77,7 @@ class Object:
         return self.bounding_box
     
     def split_object_each_face(self):
-        self.split_objects_each_faces = []
+        split_objects_each_faces = []
         for face in self.faces:
             vertices_indices, color = face
             vertices = [self.vertices[i] for i in vertices_indices]
@@ -89,25 +89,29 @@ class Object:
             max_z = max(v[2] for v in vertices)
             bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
             yield vertices, bounding_box
-            self.split_objects_each_faces.append((vertices, bounding_box))
-        return self.split_objects_each_faces
+            split_objects_each_faces.append((vertices, bounding_box))
+        return split_objects_each_faces
     
-    
-    # FIX THIS 
+    # does this work
     def split_object_smaller_percent(self):
-        self.split_objects_each_faces = []
-        for big_face in range(len(self.faces), SPLIT_PERCENT):
-            for inbetween_big_face in range(big_face):
-                vertices = [self.vertices[i] for i in big_face[0]]
-                min_x = min(v[0] for v in vertices)
-                max_x = max(v[0] for v in vertices)
-                min_y = min(v[1] for v in vertices)
-                max_y = max(v[1] for v in vertices)
-                min_z = min(v[2] for v in vertices)
-                max_z = max(v[2] for v in vertices)
-                bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
-                yield vertices, bounding_box
-                self.split_objects_smaller_percent.append((vertices, bounding_box))
+        split_objects_each_faces = []
+        num_faces = len(self.faces)
+        split_count = int(num_faces * SPLIT_PERCENT / 100)
+        print(f"Splitting {self.name} into {split_count} smaller objects")
+        for big_face in range(split_count):
+            vertices_indices, color = self.faces[big_face]
+            vertices = [self.vertices[i] for i in vertices_indices]
+            min_x = min(v[0] for v in vertices)
+            max_x = max(v[0] for v in vertices)
+            min_y = min(v[1] for v in vertices)
+            max_y = max(v[1] for v in vertices)
+            min_z = min(v[2] for v in vertices)
+            max_z = max(v[2] for v in vertices)
+            bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
+            yield vertices, bounding_box
+            split_objects_each_faces.append((vertices, bounding_box))
+        return split_objects_each_faces
+        
     def scale(self, scale):
         for i in range(len(self.vertices)):
             self.vertices[i] = (self.vertices[i][0] * scale, self.vertices[i][1] * scale, self.vertices[i][2] * scale)
