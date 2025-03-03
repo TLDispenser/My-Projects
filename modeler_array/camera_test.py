@@ -44,8 +44,8 @@ RENDER_DISTANCE_RIGHT = 50
 RENDER_DISTANCE_LEFT = -RENDER_DISTANCE_RIGHT
 
 # % of object to split
-SPLIT_PERCENT = 0.5
-
+split_whole_value = .1
+SPLIT_PERCENT = split_whole_value / 100
 class Object:
     # Initialize vertices, edges, and faces
     def __init__(self, froms, shape):
@@ -92,11 +92,11 @@ class Object:
             split_objects_each_faces.append((vertices, bounding_box))
         return split_objects_each_faces
     
-    # does this work
+    # does this work???
     def split_object_smaller_percent(self):
         split_objects_each_faces = []
         num_faces = len(self.faces)
-        split_count = int(num_faces * SPLIT_PERCENT / 100)
+        split_count = int(num_faces * SPLIT_PERCENT)
         print(f"Splitting {self.name} into {split_count} smaller objects")
         for big_face in range(split_count):
             vertices_indices, color = self.faces[big_face]
@@ -261,6 +261,11 @@ class Cam:
             for obj_name, obj in DICT.items():
                 print(f"{obj_name} split_objects_each_faces: {len(obj['object_class'].split_objects_each_faces)}")
                 print(f"{obj_name} split_objects_smaller_percent: {len(obj['object_class'].split_objects_smaller_percent)}")
+        if key[pygame.K_o]:
+            tp_x = int(input("Enter x: "))
+            tp_y = int(input("Enter y: "))
+            tp_z = int(input("Enter z: "))
+            self.pos = [tp_x, tp_y, tp_z]
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
@@ -349,6 +354,8 @@ def check_collision(obj1, obj2):
 def texturing(screen, darkened_color, points):
     pygame.gfxdraw.filled_polygon(screen, points, darkened_color)
     
+    # draws the bounding boxes
+    
     # Weird half arks
     #pygame.gfxdraw.bezier(screen, points, 2, darkened_color)
     # Connect the dots 
@@ -376,6 +383,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
                 print(f"Error drawing polygon with points: {points}, error: {e}")
 
 buffer = 10
+normal_render = True
 def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
@@ -385,15 +393,31 @@ def get_all_faces(cam_pos):
             bounding_box = obj['object_class'].bounding_box
             if bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < bounding_box[0][1] + RENDER_DISTANCE_FAR and \
                bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                obj_class = obj['object_class']
-                vertices = obj_class.vertices
-                all_vertices.extend(vertices)
-                for face in obj_class.faces:
-                    vertices_indices, color = face
-                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                    all_faces.append((adjusted_indices, color))
-                vertex_offset += len(vertices)
-    
+                if normal_render:
+                    # Used if you want to split the object into smaller objects
+                        obj_class = obj['object_class']
+                        vertices = obj_class.vertices
+                        all_vertices.extend(vertices)
+                        for face in obj_class.faces:
+                            vertices_indices, color = face
+                            adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                            all_faces.append((adjusted_indices, color))
+                        vertex_offset += len(vertices)
+                else:
+                    smaller_bounding_boxes = obj['object_class'].split_objects_smaller_percent
+                    for vertices, smaller_bounding_box in smaller_bounding_boxes:
+                        if smaller_bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < smaller_bounding_box[0][1] + RENDER_DISTANCE_FAR and \
+                        smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
+                            
+                            # Used if you want to split the object into smaller objects
+                            obj_class = obj['object_class']
+                            for vertices, smaller_bounding_box in smaller_bounding_boxes:
+                                all_vertices.extend(vertices)
+                                for face in obj_class.faces:
+                                    vertices_indices, color = face
+                                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                                    all_faces.append((adjusted_indices, color))
+                                vertex_offset += len(vertices)
     return all_vertices, all_faces
 
 
@@ -462,7 +486,7 @@ def main():
 
         end_time = time.time()
         processing_time = end_time - start_time
-
+        
         # Display individual function processing times
         font = pygame.font.SysFont('Arial', 20)
         get_all_faces_surface = font.render(f"Get All Faces Time: {get_all_faces_time:.4f} s", False, WHITE)
