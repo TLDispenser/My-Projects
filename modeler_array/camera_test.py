@@ -180,6 +180,23 @@ DICT = {
         'scale': 1
     },
 }
+
+# So this works like how I want the spliting objects into smnaller objects works but mayby to fix the other thing maybe take legnth and with then split the object into smaller objects based on that
+"""DICT = {}
+# Additional objects using a loop
+for i in range(1, 6):
+    DICT[f'gen_modle_{i}'] = {
+        'type': 'terrain',
+        'object_class': Object(generate_model_after, 'hills'),
+        'render': True,
+        'move': True,
+        'collision': True,
+        'start_pos': (0, -2, -150 + i * 50),
+        'scale': 1
+    }
+"""
+
+
 class Cam:
     def __init__(self, pos):
         self.pos = list(pos)
