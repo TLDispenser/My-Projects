@@ -1,7 +1,8 @@
-# 2 THINGS I CAN DO:
-#    MAKE IT SPLIT OBJECTS FOR COLISION AND RENDER SO I DONT NEED TO SORT FACES JUST SPLIT OBJECTS AND CHECK TO SEE IF IN RANGE
-#    STILL MAKE IT SPLIT OBJECTS (only for colision) BUT SORT FACES AND OBJECTS 
-# SO same thing just ither removing the sorting by faces and objects vs just objects 
+# ISSUE: 
+"""when trying to split_object_smaller_percent and get_all_faces with normal_render = False it is saying: 
+depths = [all_vertices[index][2] for index in vertices_indices]
+IndexError: list index out of range                 
+I am trying to check if the camera in in the range of the smaller_bounding_boxes then renders whats inside the smaller_bounding_boxes and the faces that goes with it. Can you help me fix what I have?"""
 
 
 
@@ -399,8 +400,41 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
             except Exception as e:
                 print(f"Error drawing polygon with points: {points}, error: {e}")
 
-buffer = 10
-normal_render = True
+normal_render = False
+"""def get_all_faces(cam_pos):
+    all_vertices = []
+    all_faces = []
+    vertex_offset = 0
+    for obj in DICT.values():
+        if obj['render']:
+            bounding_box = obj['object_class'].bounding_box
+            if bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < bounding_box[0][1] + RENDER_DISTANCE_FAR and \
+               bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
+                if normal_render:
+                    # Used if you want to split the object into smaller objects
+                    obj_class = obj['object_class']
+                    vertices = obj_class.vertices
+                    all_vertices.extend(vertices)
+                    for face in obj['object_class'].faces:
+                        vertices_indices, color = face
+                        adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                        all_faces.append((adjusted_indices, color))
+                    vertex_offset += len(vertices)
+                else:
+                    smaller_bounding_boxes = obj['object_class'].split_objects_smaller_percent
+                    for vertices, smaller_bounding_box in smaller_bounding_boxes:
+                        if smaller_bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < smaller_bounding_box[0][1] + RENDER_DISTANCE_FAR and \
+                           smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
+                            all_vertices.extend(vertices)
+                            for face in obj['object_class'].faces:
+                                vertices_indices, color = face
+                                if all(index < len(obj['object_class'].vertices) for index in vertices_indices):
+                                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                                    all_faces.append((adjusted_indices, color))
+                            vertex_offset += len(vertices)
+                            
+    return all_vertices, all_faces"""
+# try???
 def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
@@ -412,32 +446,31 @@ def get_all_faces(cam_pos):
                bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
                 if normal_render:
                     # Used if you want to split the object into smaller objects
-                        obj_class = obj['object_class']
-                        vertices = obj_class.vertices
-                        all_vertices.extend(vertices)
-                        for face in obj_class.faces:
-                            vertices_indices, color = face
-                            adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                            all_faces.append((adjusted_indices, color))
-                        vertex_offset += len(vertices)
+                    obj_class = obj['object_class']
+                    vertices = obj_class.vertices
+                    all_vertices.extend(vertices)
+                    for face in obj['object_class'].faces:
+                        vertices_indices, color = face
+                        adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                        all_faces.append((adjusted_indices, color))
+                    vertex_offset += len(vertices)
                 else:
                     smaller_bounding_boxes = obj['object_class'].split_objects_smaller_percent
                     for vertices, smaller_bounding_box in smaller_bounding_boxes:
                         if smaller_bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < smaller_bounding_box[0][1] + RENDER_DISTANCE_FAR and \
-                        smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                            
-                            # Used if you want to split the object into smaller objects
-                            obj_class = obj['object_class']
-                            for vertices, smaller_bounding_box in smaller_bounding_boxes:
-                                all_vertices.extend(vertices)
-                                for face in obj_class.faces:
-                                    vertices_indices, color = face
-                                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
+                           smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
+                            start_vertex_offset = vertex_offset
+                            all_vertices.extend(vertices)
+                            for face in obj['object_class'].faces:
+                                vertices_indices, color = face
+                                if all(index < len(obj['object_class'].vertices) for index in vertices_indices):
+                                    adjusted_indices = [index + start_vertex_offset for index in vertices_indices]
                                     all_faces.append((adjusted_indices, color))
-                                vertex_offset += len(vertices)
+                                else:
+                                    print(f"Invalid indices in face: {vertices_indices}, len(vertices): {len(obj['object_class'].vertices)}")
+                            vertex_offset += len(vertices)
+                            
     return all_vertices, all_faces
-
-
 
 
 def main():
