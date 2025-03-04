@@ -197,9 +197,8 @@ class Cam:
     def __init__(self, pos):
         self.pos = list(pos)
         self.rot = [0, 0]
-
-    def camera_boundingbox(self):
         self.hitbox = (-1, 1), (-1, 1), (-1, 1)
+    
         
     def mouse_event(self, event):
         if event.type == pygame.MOUSEMOTION:
@@ -280,6 +279,17 @@ class Cam:
             tp_y = int(input("Enter y: "))
             tp_z = int(input("Enter z: "))
             self.pos = [tp_x, tp_y, tp_z]
+            
+    def check_collision_with_camera(self, obj):
+        (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = self.hitbox
+        (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj.get_bounding_box()
+        if (min_x1 <= max_x2 and max_x1 >= min_x2 and \
+            min_y1 <= max_y2 and max_y1 >= min_y2 and \
+            min_z1 <= max_z2 and max_z1 >= min_z2):
+            print("Collision detected")
+    
+        
+
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
@@ -465,9 +475,16 @@ def main():
         keys = pygame.key.get_pressed()
         cam.update(keys)
 
-        
+        """for obj_name, obj in DICT.items():
+            cam.check_collision_with_camera(obj['object_class'])"""
+            
         screen.fill(BLACK)
-        #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        # Draw blue sky
+        sky_color = (135, 206, 235)  # Light blue color
+        sky_height = int((1 - (1.58 - cam.rot[0]) / 3.16) * HEIGHT)
+        pygame.draw.rect(screen, sky_color, (0, 0, WIDTH, sky_height))
+
 
         # Get all faces to render
         func_start_time = time.time()
@@ -531,23 +548,22 @@ def main():
         # Draw small x, y, z axis in the middle of the screen based on camera rotation
         axis_length = 10
         center_x, center_y = screen.get_width() // 2, screen.get_height() // 2
-
         # Draw x-axis (red)
         end_x = center_x + axis_length * math.cos(cam.rot[1])
         end_y = center_y + axis_length * math.sin(cam.rot[1])
         pygame.draw.line(screen, (255, 0, 0), (center_x, center_y), (end_x, end_y), 2)
-
         # Draw y-axis (green)
         end_x = center_x
         end_y = center_y - axis_length
         pygame.draw.line(screen, (0, 255, 0), (center_x, center_y), (end_x, end_y), 2)
-
         # Draw z-axis (blue)
         end_x = center_x + axis_length * math.sin(cam.rot[1])
         end_y = center_y - axis_length * math.cos(cam.rot[1])
         pygame.draw.line(screen, (0, 0, 255), (center_x, center_y), (end_x, end_y), 2)
 
+        
         pygame.display.flip()
+        #pygame.display.update()
         clock.tick(60)
         
     pygame.quit()
