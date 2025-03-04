@@ -103,6 +103,9 @@ class Object:
             bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
             yield vertices, bounding_box
             split_objects_each_faces.append((vertices, bounding_box))
+        print(f"Each bounding box is: ")
+        for vertices, bounding_box in split_objects_each_faces:
+            print(f"{bounding_box}")
         return split_objects_each_faces
         
     def scale(self, scale):
@@ -220,7 +223,17 @@ class Cam:
             self.pos[1] -= s
         if key[pygame.K_SPACE]:
             self.pos[1] += s
-
+        
+        # Camera rotation
+        if key[pygame.K_UP]:
+            self.rot[0] += 0.1
+        if key[pygame.K_DOWN]:
+            self.rot[0] -= 0.1
+        if key[pygame.K_LEFT]:
+            self.rot[1] -= 0.1
+        if key[pygame.K_RIGHT]:
+            self.rot[1] += 0.1
+        
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
 
         # Checks to see if the camera is within the bounds of rotation 
@@ -244,15 +257,6 @@ class Cam:
             self.pos[0] += y
             self.pos[2] -= x
         
-        # Camera rotation
-        if key[pygame.K_UP]:
-            self.rot[0] += 0.1
-        if key[pygame.K_DOWN]:
-            self.rot[0] -= 0.1
-        if key[pygame.K_LEFT]:
-            self.rot[1] -= 0.1
-        if key[pygame.K_RIGHT]:
-            self.rot[1] += 0.1
 
         if key[pygame.K_ESCAPE]:
             pygame.quit()
@@ -392,7 +396,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
             except Exception as e:
                 print(f"Error drawing polygon with points: {points}, error: {e}")
 
-normal_render = False
+normal_render = True
 def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
@@ -422,9 +426,8 @@ def get_all_faces(cam_pos):
                             # then need to say hi faces, what ones are tied into this smaller bounding box
                             # then says yes appendthem to a list :)
                             # then if that faces is split inbetween two smaller bounding boxes then it will not render the face (unless it works and causes no problem)
-                            
-                            
-                            
+                            break
+    
     return all_vertices, all_faces
 
 
@@ -521,6 +524,29 @@ def main():
         possurface = font.render(pos, False, WHITE)
         screen.blit(possurface, (0, 30))
         
+        # Draw small x, y, z axis in the middle of the screen
+        axis_length = 10
+        center_x, center_y = screen.get_width() // 2, screen.get_height() // 2
+
+        # Draw small x, y, z axis in the middle of the screen based on camera rotation
+        axis_length = 10
+        center_x, center_y = screen.get_width() // 2, screen.get_height() // 2
+
+        # Draw x-axis (red)
+        end_x = center_x + axis_length * math.cos(cam.rot[1])
+        end_y = center_y + axis_length * math.sin(cam.rot[1])
+        pygame.draw.line(screen, (255, 0, 0), (center_x, center_y), (end_x, end_y), 2)
+
+        # Draw y-axis (green)
+        end_x = center_x
+        end_y = center_y - axis_length
+        pygame.draw.line(screen, (0, 255, 0), (center_x, center_y), (end_x, end_y), 2)
+
+        # Draw z-axis (blue)
+        end_x = center_x + axis_length * math.sin(cam.rot[1])
+        end_y = center_y - axis_length * math.cos(cam.rot[1])
+        pygame.draw.line(screen, (0, 0, 255), (center_x, center_y), (end_x, end_y), 2)
+
         pygame.display.flip()
         clock.tick(60)
         
