@@ -1,11 +1,3 @@
-# ISSUE: 
-"""when trying to split_object_smaller_percent and get_all_faces with normal_render = False it is saying: 
-depths = [all_vertices[index][2] for index in vertices_indices]
-IndexError: list index out of range                 
-I am trying to check if the camera in in the range of the smaller_bounding_boxes then renders whats inside the smaller_bounding_boxes and the faces that goes with it. Can you help me fix what I have?"""
-
-
-
 import pygame
 import sys
 import math
@@ -111,6 +103,9 @@ class Object:
             bounding_box = (min_x, max_x), (min_y, max_y), (min_z, max_z)
             yield vertices, bounding_box
             split_objects_each_faces.append((vertices, bounding_box))
+        print(f"Each bounding box is: ")
+        for vertices, bounding_box in split_objects_each_faces:
+            print(f"{bounding_box}")
         return split_objects_each_faces
         
     def scale(self, scale):
@@ -202,9 +197,8 @@ class Cam:
     def __init__(self, pos):
         self.pos = list(pos)
         self.rot = [0, 0]
-
-    def camera_boundingbox(self):
         self.hitbox = (-1, 1), (-1, 1), (-1, 1)
+    
         
     def mouse_event(self, event):
         if event.type == pygame.MOUSEMOTION:
@@ -228,7 +222,17 @@ class Cam:
             self.pos[1] -= s
         if key[pygame.K_SPACE]:
             self.pos[1] += s
-
+        
+        # Camera rotation
+        if key[pygame.K_UP]:
+            self.rot[0] += 0.1
+        if key[pygame.K_DOWN]:
+            self.rot[0] -= 0.1
+        if key[pygame.K_LEFT]:
+            self.rot[1] -= 0.1
+        if key[pygame.K_RIGHT]:
+            self.rot[1] += 0.1
+        
         x, y = s * math.sin(self.rot[1]), s * math.cos(self.rot[1])
 
         # Checks to see if the camera is within the bounds of rotation 
@@ -252,15 +256,6 @@ class Cam:
             self.pos[0] += y
             self.pos[2] -= x
         
-        # Camera rotation
-        if key[pygame.K_UP]:
-            self.rot[0] += 0.1
-        if key[pygame.K_DOWN]:
-            self.rot[0] -= 0.1
-        if key[pygame.K_LEFT]:
-            self.rot[1] -= 0.1
-        if key[pygame.K_RIGHT]:
-            self.rot[1] += 0.1
 
         if key[pygame.K_ESCAPE]:
             pygame.quit()
@@ -284,6 +279,17 @@ class Cam:
             tp_y = int(input("Enter y: "))
             tp_z = int(input("Enter z: "))
             self.pos = [tp_x, tp_y, tp_z]
+            
+    def check_collision_with_camera(self, obj):
+        (min_x1, max_x1), (min_y1, max_y1), (min_z1, max_z1) = self.hitbox
+        (min_x2, max_x2), (min_y2, max_y2), (min_z2, max_z2) = obj.get_bounding_box()
+        if (min_x1 <= max_x2 and max_x1 >= min_x2 and \
+            min_y1 <= max_y2 and max_y1 >= min_y2 and \
+            min_z1 <= max_z2 and max_z1 >= min_z2):
+            print("Collision detected")
+    
+        
+
     def transform(self, vertices):
         transformed_vertices = []
         cos_y, sin_y = math.cos(self.rot[1]), math.sin(self.rot[1])
@@ -400,41 +406,7 @@ def draw_faces(all_vertices, sorted_faces, aspect_ratio):
             except Exception as e:
                 print(f"Error drawing polygon with points: {points}, error: {e}")
 
-normal_render = False
-"""def get_all_faces(cam_pos):
-    all_vertices = []
-    all_faces = []
-    vertex_offset = 0
-    for obj in DICT.values():
-        if obj['render']:
-            bounding_box = obj['object_class'].bounding_box
-            if bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < bounding_box[0][1] + RENDER_DISTANCE_FAR and \
-               bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                if normal_render:
-                    # Used if you want to split the object into smaller objects
-                    obj_class = obj['object_class']
-                    vertices = obj_class.vertices
-                    all_vertices.extend(vertices)
-                    for face in obj['object_class'].faces:
-                        vertices_indices, color = face
-                        adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                        all_faces.append((adjusted_indices, color))
-                    vertex_offset += len(vertices)
-                else:
-                    smaller_bounding_boxes = obj['object_class'].split_objects_smaller_percent
-                    for vertices, smaller_bounding_box in smaller_bounding_boxes:
-                        if smaller_bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < smaller_bounding_box[0][1] + RENDER_DISTANCE_FAR and \
-                           smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                            all_vertices.extend(vertices)
-                            for face in obj['object_class'].faces:
-                                vertices_indices, color = face
-                                if all(index < len(obj['object_class'].vertices) for index in vertices_indices):
-                                    adjusted_indices = [index + vertex_offset for index in vertices_indices]
-                                    all_faces.append((adjusted_indices, color))
-                            vertex_offset += len(vertices)
-                            
-    return all_vertices, all_faces"""
-# try???
+normal_render = True
 def get_all_faces(cam_pos):
     all_vertices = []
     all_faces = []
@@ -459,17 +431,13 @@ def get_all_faces(cam_pos):
                     for vertices, smaller_bounding_box in smaller_bounding_boxes:
                         if smaller_bounding_box[0][0] - RENDER_DISTANCE_FAR < cam_pos[0] - obj['object_class'].pivot[0] < smaller_bounding_box[0][1] + RENDER_DISTANCE_FAR and \
                            smaller_bounding_box[2][0] - abs(RENDER_DISTANCE_LEFT) < cam_pos[2] - obj['object_class'].pivot[2] < smaller_bounding_box[2][1] + RENDER_DISTANCE_RIGHT:
-                            start_vertex_offset = vertex_offset
-                            all_vertices.extend(vertices)
-                            for face in obj['object_class'].faces:
-                                vertices_indices, color = face
-                                if all(index < len(obj['object_class'].vertices) for index in vertices_indices):
-                                    adjusted_indices = [index + start_vertex_offset for index in vertices_indices]
-                                    all_faces.append((adjusted_indices, color))
-                                else:
-                                    print(f"Invalid indices in face: {vertices_indices}, len(vertices): {len(obj['object_class'].vertices)}")
-                            vertex_offset += len(vertices)
-                            
+                            # need to somehow state
+                            # What ithe condition is before is: Hello yes this is in the bound of the smaller bounding box
+                            # then need to say hi faces, what ones are tied into this smaller bounding box
+                            # then says yes appendthem to a list :)
+                            # then if that faces is split inbetween two smaller bounding boxes then it will not render the face (unless it works and causes no problem)
+                            break
+    
     return all_vertices, all_faces
 
 
@@ -507,9 +475,16 @@ def main():
         keys = pygame.key.get_pressed()
         cam.update(keys)
 
-        
+        """for obj_name, obj in DICT.items():
+            cam.check_collision_with_camera(obj['object_class'])"""
+            
         screen.fill(BLACK)
-        #pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        pygame.draw.rect(screen, (0, 255, 0), (0, HEIGHT // 2, WIDTH, HEIGHT // 2))
+        # Draw blue sky
+        sky_color = (135, 206, 235)  # Light blue color
+        sky_height = int((1 - (1.58 - cam.rot[0]) / 3.16) * HEIGHT)
+        pygame.draw.rect(screen, sky_color, (0, 0, WIDTH, sky_height))
+
 
         # Get all faces to render
         func_start_time = time.time()
@@ -566,7 +541,29 @@ def main():
         possurface = font.render(pos, False, WHITE)
         screen.blit(possurface, (0, 30))
         
+        # Draw small x, y, z axis in the middle of the screen
+        axis_length = 10
+        center_x, center_y = screen.get_width() // 2, screen.get_height() // 2
+
+        # Draw small x, y, z axis in the middle of the screen based on camera rotation
+        axis_length = 10
+        center_x, center_y = screen.get_width() // 2, screen.get_height() // 2
+        # Draw x-axis (red)
+        end_x = center_x + axis_length * math.cos(cam.rot[1])
+        end_y = center_y + axis_length * math.sin(cam.rot[1])
+        pygame.draw.line(screen, (255, 0, 0), (center_x, center_y), (end_x, end_y), 2)
+        # Draw y-axis (green)
+        end_x = center_x
+        end_y = center_y - axis_length
+        pygame.draw.line(screen, (0, 255, 0), (center_x, center_y), (end_x, end_y), 2)
+        # Draw z-axis (blue)
+        end_x = center_x + axis_length * math.sin(cam.rot[1])
+        end_y = center_y - axis_length * math.cos(cam.rot[1])
+        pygame.draw.line(screen, (0, 0, 255), (center_x, center_y), (end_x, end_y), 2)
+
+        
         pygame.display.flip()
+        #pygame.display.update()
         clock.tick(60)
         
     pygame.quit()
